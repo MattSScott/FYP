@@ -1,7 +1,7 @@
 int n = 3;
 //int aliveAgents = 3;
 int agentSize = 40;
-String[] agentTypes = {"ALTRUIST"};//, "NARCISSIST"};
+String[] agentTypes = {"ALTRUIST", "NARCISSIST"};
 Agent[] agents = new Agent[n];
 
 void setup() {
@@ -14,13 +14,13 @@ void setup() {
     Agent agent;
     switch(agentType) {
     case "ALTRUIST":
-      agent = new Altruist(i, random(0, width), random(0, height), agentSize);
+      agent = new Altruist(i, random(0, width), random(0, height), agentSize, true);
       break;
     case "NARCISSIST":
-      agent = new Narcissist(i, random(0, width), random(0, height), agentSize);
+      agent = new Narcissist(i, random(0, width), random(0, height), agentSize, true);
       break;
     default:
-      agent = new Agent(i, random(0, width), random(0, height), agentSize);
+      agent = new Agent(i, random(0, width), random(0, height), agentSize, true);
       break;
     }
     agents[i] = agent;
@@ -75,7 +75,7 @@ void visualiseTreaties(Agent[] agents){
 
 void runTreatySession(Agent[] agents) {
   compileTreaties(agents);
-  printTreaties(agents);
+  //printTreaties(agents);
   visualiseTreaties(agents);
-  println();
+  //println();
 }

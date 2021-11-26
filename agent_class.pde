@@ -3,13 +3,15 @@ class Agent {
   float size;
   color col;
   int id;
+  boolean alive;
   ArrayList<TreatyProposal> treaties;
 
-  Agent(int id, float x, float y, float size) {
+  Agent(int id, float x, float y, float size, boolean alive) {
     this.id = id;
     this.pos = new PVector(x, y);
     this.size = size;
     this.col = color(0, 0, 0);
+    this.alive = alive;
     this.treaties = new ArrayList<TreatyProposal>();
   }
 
