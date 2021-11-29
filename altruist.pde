@@ -10,7 +10,7 @@ class Altruist extends Agent {
     for (int i=0; i<agents.length; i++) {
       int agentID = agents[i].getID();
       if (agents[i] != this) {
-        TreatyProposal newTreaty = new TreatyProposal(agentID, this.getID(), "NiceTreaty");
+        TreatyProposal newTreaty = new TreatyProposal(agentID, this.getID(), "NiceTreaty"); // to, from, type
         if (this.canAddTreaty(newTreaty)) {
           proposals.add(newTreaty);
         }
@@ -18,5 +18,9 @@ class Altruist extends Agent {
     }
 
     return proposals;
+  }
+
+
+  void reviewTreaties() { //accept all treaties
   }
 }

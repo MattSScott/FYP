@@ -6,7 +6,7 @@ class Agent {
   boolean alive; // am I alive or dead
   int neighbourhood; // the other agents I'm close enough to interact with
   float minDistanceToNeighbourhood; // closest I am to other lads
-  ArrayList<TreatyProposal> treaties; // what agreements have I made so far
+  ArrayList<TreatyProposal> treaties; // what propositions have been made to me so far
 
   Agent(int id, float x, float y, float size) {
     this.id = id;
@@ -90,5 +90,12 @@ class Agent {
   }
 
   void reviewTreaties() {
-  };
+    ArrayList<TreatyProposal> answeredTreaties = new ArrayList<TreatyProposal>();
+    for (TreatyProposal t : this.treaties) {
+      if (random(1) < 0.5) {
+        answeredTreaties.add(t);
+      }
+    }
+    this.treaties = answeredTreaties;
+  }
 }

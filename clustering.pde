@@ -18,7 +18,7 @@ void genNeighbourhoods(Agent[] agents, int n_clusters) {
 
   while (true) {
     for (int i=0; i<agents.length; i++) {
-      agents[i].minDistanceToNeighbourhood = agents[i].pos.dist(centers[0]); 
+      agents[i].minDistanceToNeighbourhood = agents[i].pos.dist(centers[0]);
       agents[i].neighbourhood = 0;
       for (int j=1; j<centers.length; j++) {
         float currDist = agents[i].pos.dist(centers[j]);

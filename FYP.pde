@@ -30,8 +30,6 @@ void setup() {
 void draw() {
   background(255);
 
-  for (Agent a : agents) {
-  }
 
   genNeighbourhoods(agents, neighbourhoods);
   runTreatySession(agents);
@@ -80,7 +78,8 @@ void visualiseTreaties(Agent[] agents) {
 
 void runTreatySession(Agent[] agents) {
   compileTreaties(agents);
-  //printTreaties(agents);
+  for (Agent a : agents) {
+    a.reviewTreaties();
+  }
   visualiseTreaties(agents);
-  //println();
 }

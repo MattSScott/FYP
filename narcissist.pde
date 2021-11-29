@@ -19,4 +19,9 @@ class Narcissist extends Agent {
 
     return proposals;
   }
+
+  void reviewTreaties() {
+    ArrayList<TreatyProposal> answeredTreaties = new ArrayList<TreatyProposal>();
+    this.treaties = answeredTreaties; // reject all treaties
+  }
 }

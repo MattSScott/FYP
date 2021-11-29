@@ -7,7 +7,7 @@ class TreatyProposal {
     this.treatyFrom = treatyFrom;
     this.treatyType = treatyType;
   }
-  void Print(){
+  void Print() {
     println(this.treatyFrom, this.treatyTo, this.treatyType);
   }
 }
@@ -18,5 +18,18 @@ class TreatyResponse {
   TreatyResponse(TreatyProposal treaty, boolean response) {
     this.treaty = treaty;
     this.response = response;
+  }
+}
+
+class Treaty {
+  String treatyName;
+  String description;
+  Treaty(String tn, String d){
+    this.treatyName = tn;
+    this.description = d;
+  }
+  
+  String what(){
+    return this.description;
   }
 }
