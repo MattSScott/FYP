@@ -24,9 +24,14 @@ class TreatyResponse {
 class Treaty {
   String treatyName;
   String description;
-  Treaty(String tn, String d){
+  VariableFieldName[] reqVars;
+  float[] matReqVars;
+  
+  Treaty(String tn, String d, VariableFieldName[] rv, float[] mrv){
     this.treatyName = tn;
     this.description = d;
+    this.reqVars = rv;
+    this.matReqVars = mrv;
   }
   
   String what(){
