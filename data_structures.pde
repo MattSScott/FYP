@@ -8,7 +8,7 @@ class TreatyProposal {
     this.treatyType = treatyType;
   }
   void Print(){
-    println(this.treatyTo, this.treatyFrom, this.treatyType);
+    println(this.treatyFrom, this.treatyTo, this.treatyType);
   }
 }
 

@@ -1,6 +1,6 @@
 class Altruist extends Agent {
-  Altruist(int id, float x, float y, float size, boolean alive) {
-    super(id, x, y, size, alive);
+  Altruist(int id, float x, float y, float size) {
+    super(id, x, y, size);
     this.col = color(0, 255, 0);
   }
 

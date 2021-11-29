@@ -1,6 +1,6 @@
 class Narcissist extends Agent {
-  Narcissist(int id, float x, float y, float size, boolean alive) {
-    super(id, x, y, size, alive);
+  Narcissist(int id, float x, float y, float size) {
+    super(id, x, y, size);
     this.col = color(255, 0, 0);
   }
 
