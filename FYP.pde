@@ -6,7 +6,7 @@ String[] agentTypes = {"ALTRUIST", "NARCISSIST"};
 Agent[] agents = new Agent[n];
 
 void setup() {
-  frameRate(1);
+  //frameRate(5);
   size(400, 400);
   for (int i=0; i<agents.length; i++) {
     int agentTypeIndex = int(random(agentTypes.length));
@@ -30,14 +30,19 @@ void setup() {
 void draw() {
   background(255);
 
-
-  genNeighbourhoods(agents, neighbourhoods);
-  runTreatySession(agents);
+  if(n > 1){
+    genNeighbourhoods(agents, neighbourhoods);
+    runTreatySession(agents);
+  }
 
 
   for (Agent a : agents) {
     a.drawAgent();
-    a.moveRandom();
+    //a.moveRandom();
+    a.moveCalculated();
+    //a.fight?
+    //a.setHP(max(0,a.getHP()-1));
+    //print(a.getHP());
   }
 
   //noLoop();
@@ -70,7 +75,7 @@ void visualiseTreaties(Agent[] agents) {
     for (TreatyProposal t : setOfTreaties) {
       int agentFrom = t.treatyFrom;
       PVector midpoint = new PVector(0.5*(a.pos.x + agents[agentFrom].pos.x), 0.5*(a.pos.y + agents[agentFrom].pos.y));
-      line(agents[agentFrom].pos.x, agents[agentFrom].pos.y, a.pos.x, a.pos.y);
+      drawLine(agents[agentFrom].pos, a.pos);
       text(t.treatyType, midpoint.x, midpoint.y);
     }
   }
@@ -82,4 +87,24 @@ void runTreatySession(Agent[] agents) {
     a.reviewTreaties();
   }
   visualiseTreaties(agents);
+}
+
+void drawArrow(PVector from, PVector to) {
+  fill(0);
+  line(from.x, from.y, to.x, to.y);
+  pushMatrix();
+  translate(to.x, to.y);
+  PVector dir = to.copy().sub(from);
+  float heading = PVector.angleBetween(new PVector(0, 1), dir);
+  if (heading > PI/2) {
+    rotate(-heading);
+  } else {
+    rotate(heading);
+  }
+  triangle(-10, -agentSize, 0, 20-agentSize, 10, -agentSize);
+  popMatrix();
+}
+
+void drawLine(PVector from, PVector to) {
+  line(from.x, from.y, to.x, to.y);
 }

@@ -26,15 +26,15 @@ class Treaty {
   String description;
   VariableFieldName[] reqVars;
   float[] matReqVars;
-  
-  Treaty(String tn, String d, VariableFieldName[] rv, float[] mrv){
+
+  Treaty(String tn, String d, VariableFieldName[] rv, float[] mrv) {
     this.treatyName = tn;
     this.description = d;
     this.reqVars = rv;
     this.matReqVars = mrv;
   }
-  
-  String what(){
+
+  String what() {
     return this.description;
   }
 }

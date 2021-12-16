@@ -1,12 +1,16 @@
 class Agent {
   PVector pos; // where am I on the screen
-  float size;
-  color col; // goody or baddie
-  int id; // what's my name
+  private float size;
+  protected color col; // goody or baddie
+  private int id; // what's my name
+  private float HP; //current HP
   boolean alive; // am I alive or dead
   int neighbourhood; // the other agents I'm close enough to interact with
   float minDistanceToNeighbourhood; // closest I am to other lads
   ArrayList<TreatyProposal> treaties; // what propositions have been made to me so far
+  private float speed;
+  private PVector glideVector; //destination used for smooth agent movement
+  private PVector target;
 
   Agent(int id, float x, float y, float size) {
     this.id = id;
@@ -16,11 +20,24 @@ class Agent {
     this.alive = true;
     this.neighbourhood = -1;
     this.treaties = new ArrayList<TreatyProposal>();
+    this.HP = 100;
+    this.speed = random(1, 6);
+    //this.speed = 15;
+    this.target = new PVector( random(width), random(height) );
+    this.glideVector = this.calculateGlideVector(target.copy());
   }
 
 
   int getID() {
     return this.id;
+  }
+
+  void setHP(float newHP) {
+    this.HP = newHP;
+  }
+
+  float getHP() {
+    return this.HP;
   }
 
   void agentConstrain() {
@@ -44,9 +61,28 @@ class Agent {
     this.agentConstrain();
   }
 
+  void moveCalculated() {
+    if (dist(this.pos.x, this.pos.y, this.target.x, this.target.y) <= 5 ) {
+      this.target = new PVector( random(width), random(height) );
+      this.glideVector = this.calculateGlideVector(target.copy());
+    }
+    this.pos.add(glideVector);
+    //println(this.pos, this.target);
+    this.agentConstrain();
+  }
+
+  PVector calculateGlideVector(PVector newPos) {
+    PVector newDir = newPos.sub(this.pos);
+    newDir.mult(speed/150.0);
+    return newDir;
+  }
 
   void drawAgent() {
-    fill(this.col);
+    if (this.HP > 0) {
+      fill(this.col);
+    } else {
+      fill(0);
+    }
     ellipse(this.pos.x, this.pos.y, this.size, this.size);
     fill(0);
     text(this.id, this.pos.x, this.pos.y);
@@ -54,12 +90,10 @@ class Agent {
 
   ArrayList<TreatyProposal> makeTreaties() {
     ArrayList<TreatyProposal> proposals = new ArrayList<TreatyProposal>(agents.length-1);
-    println("oops");
 
     for (int i=0; i<agents.length; i++) {
       if (agents[i] != this) {
         int agentID = agents[i].getID();
-        //float twentyPercent = random(1);
         if (random(1) < 0.2) {
           TreatyProposal newTreaty = new TreatyProposal(agentID, this.getID(), "BaseTreaty");
           if (this.canAddTreaty(newTreaty)) {
