@@ -72,15 +72,64 @@ void visualiseTreaties(Agent[] agents) {
   }
 }
 
+void updateUtility(utilityDecisionMessage msg) {
+  switch (msg.type) {
+  case "boostDefence":
+    msg.sender.defence += msg.quantity;
+    break;
+  case "boostOffence":
+    msg.sender.offence += msg.quantity;
+    break;
+  default:
+    msg.sender.utility += msg.quantity;
+    break;
+  }
+  msg.sender.pointsToInvest -= msg.quantity;
+}
+
+void resolveAttack(AttackInfo atk) {
+  float dmg = atk.damageDealt();
+  float contrib = atk.resourcesContributed;
+  atk.attacker.offence -= contrib;
+  atk.target.defence -= contrib;
+  println("agent " + atk.target.getID() + "'s health has dropped from " + atk.target.getHP() + " to " + max(0, (atk.target.getHP() - dmg)));
+  atk.target.setHP(max(0, atk.target.getHP() - dmg));
+  atk.attacker.pointsToInvest -= contrib;
+  if (atk.target.getHP() == 0) {
+    println("agent " + atk.target.getID() + " is dead");
+  }
+}
+
+
+void processUtilityAction(Agent a1, Agent a2) {
+  utilityDecisionMessage msg = a1.decideUtilityAction();
+  if (msg.type != "attack") {
+    updateUtility(msg);
+  } else {
+    AttackInfo atk = a1.compileAttack(a2, msg.quantity);
+    resolveAttack(atk);
+  }
+}
+
+void updateInvestmentPointsAndHP(Agent[] agents) {
+  for (Agent a : agents) {
+    //a.setHP(a.getHP() - 0.5);
+    a.pointsToInvest += 10;
+  }
+}
+
+
 void runInteractionSession(Agent[] agents) {
   for (Agent a1 : agents) {
     for (Agent a2 : agents) {
       if (agentsCanInteract(a1, a2)) {
         a1.offerTreaty(a2);
+        processUtilityAction(a1, a2);
       }
     }
   }
   visualiseTreaties(agents);
+  updateInvestmentPointsAndHP(agents);
   //printTreaties(agents);
   println();
 }
@@ -91,5 +140,5 @@ void drawLine(PVector from, PVector to) {
 }
 
 boolean agentsCanInteract(Agent a1, Agent a2) {
-  return a1 != a2 && a1.neighbourhood == a2.neighbourhood;
+  return a1 != a2 && a1.neighbourhood == a2.neighbourhood && a1.getHP() > 0 && a2.getHP() > 0; //Possible TODO - make an "alive agents" array and splice to avoid iteration???
 }

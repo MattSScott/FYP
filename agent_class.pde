@@ -11,6 +11,7 @@ class Agent {
   private float speed;
   private PVector glideVector; //destination used for smooth agent movement
   private PVector target;
+  float pointsToInvest;
   float offence;
   float defence;
   float utility;
@@ -30,6 +31,8 @@ class Agent {
     this.glideVector = this.calculateGlideVector(target.copy());
     this.offence = 5;
     this.defence = 5;
+    this.utility = 0;
+    this.pointsToInvest = 10;
   }
 
 
@@ -126,16 +129,36 @@ class Agent {
     return true;
   }
 
+  utilityDecisionMessage decideUtilityAction() {
+    float rand = random(1);
+    float quantity = random(this.pointsToInvest);
 
-  void stockpileAttack(float pointsToInvest) {
-    this.offence += random(pointsToInvest);
+    if ( rand < 0.25) {
+      return new utilityDecisionMessage(this, "boostDefence", quantity);
+    }
+    if ( rand < 0.5) {
+      return new utilityDecisionMessage(this, "boostOffence", quantity);
+    }
+    if ( rand < 0.75) {
+      return new utilityDecisionMessage(this, "boostUtility", quantity);
+    }
+    return new utilityDecisionMessage(this, "attack", random(this.offence));
   }
 
-  void stockpileDefence(float pointsToInvest) {
-    this.defence += random(pointsToInvest);
+  AttackInfo compileAttack(Agent opponent, float contribution) {
+    AttackInfo thisAttack = new AttackInfo(this, opponent, contribution);
+    return thisAttack;
   }
 
-  void stockpileUtility(float pointsToInvest) {
-    this.utility += random(pointsToInvest);
+  void stockpileAttack() {
+    this.offence += random(this.pointsToInvest);
+  }
+
+  void stockpileDefence() {
+    this.defence += random(this.pointsToInvest);
+  }
+
+  void stockpileUtility() {
+    this.utility += random(this.pointsToInvest);
   }
 }

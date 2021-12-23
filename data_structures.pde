@@ -39,24 +39,33 @@ class Treaty {
   }
 }
 
+
+
+class utilityDecisionMessage {
+  Agent sender;
+  float quantity;
+  String type;
+  utilityDecisionMessage(Agent sender, String type, float quantity) {
+    this.sender = sender;
+    this.quantity = quantity;
+    this.type = type;
+  }
+}
+
+
 class AttackInfo {
   float resourcesContributed;
-  int attacker;
-  int target;
-  AttackInfo(int attacker, int target, float contrib) {
+  Agent attacker;
+  Agent target;
+  AttackInfo(Agent attacker, Agent target, float contrib) {
     this.target = target;
     this.attacker = attacker;
     this.resourcesContributed = contrib;
   }
-  boolean attackSuccessful() {
-    return agents[attacker].offence >= this.resourcesContributed && this.resourcesContributed >= agents[target].defence;
-  }
+
   float damageDealt() {
-    if (this.attackSuccessful()) {
-      float damage =  this.resourcesContributed - agents[target].defence;
-      println("agent " + this.attacker + " attacked agent " + this.target + " dealing " + damage + " damage ");
-      return damage;
-    }
-    return 0;
+    float damage =  this.resourcesContributed - target.defence;
+    println("agent " + this.attacker.getID() + " attacked agent " + this.target.getID() + " dealing " + max(0, damage) + " damage ");
+    return max(0, damage);
   }
 }
