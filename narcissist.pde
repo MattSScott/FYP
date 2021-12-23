@@ -4,24 +4,22 @@ class Narcissist extends Agent {
     this.col = color(255, 0, 0);
   }
 
-  ArrayList<TreatyProposal> makeTreaties() {
-    ArrayList<TreatyProposal> proposals = new ArrayList<TreatyProposal>(agents.length-1);
-
-    for (int i=0; i<agents.length; i++) {
-      int agentID = agents[i].getID();
-      if (agents[i] != this) {
-        TreatyProposal newTreaty = new TreatyProposal(agentID, this.getID(), "MeanTreaty");
-        if (this.canAddTreaty(newTreaty)) {
-          proposals.add(newTreaty);
-        }
+  void offerTreaty(Agent a) {
+    TreatyProposal newTreaty = new TreatyProposal(this, a, "NastyTreaty");
+    if (random(1) < 0.5 && this.canOfferTreaty(newTreaty)) {
+      TreatyResponse newTreatyResponse = a.reviewTreaty(newTreaty);
+      if (newTreatyResponse.response) {
+        this.activeTreaties.add(newTreaty);
+        a.activeTreaties.add(newTreaty);
       }
     }
-
-    return proposals;
   }
 
-  void reviewTreaties() {
-    ArrayList<TreatyProposal> answeredTreaties = new ArrayList<TreatyProposal>();
-    this.treaties = answeredTreaties; // reject all treaties
+  TreatyResponse reviewTreaty(TreatyProposal treaty) {
+    TreatyResponse response = new TreatyResponse(treaty, true);
+    if (random(1) < 1) {
+      response = new TreatyResponse(treaty, false);
+    }
+    return response;
   }
 }
