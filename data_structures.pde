@@ -1,14 +1,14 @@
 class TreatyProposal {
+  Agent treatyFrom;
+  Agent treatyTo;
   String treatyType;
-  int treatyTo;
-  int treatyFrom;
-  TreatyProposal(int treatyTo, int treatyFrom, String treatyType) {
-    this.treatyTo = treatyTo;
+  TreatyProposal(Agent treatyFrom, Agent treatyTo, String treatyType) {
     this.treatyFrom = treatyFrom;
+    this.treatyTo = treatyTo;
     this.treatyType = treatyType;
   }
   void Print() {
-    println(this.treatyFrom, this.treatyTo, this.treatyType);
+    println(this.treatyFrom.getID(), this.treatyTo.getID(), this.treatyType);
   }
 }
 
@@ -36,5 +36,27 @@ class Treaty {
 
   String what() {
     return this.description;
+  }
+}
+
+class AttackInfo {
+  float resourcesContributed;
+  int attacker;
+  int target;
+  AttackInfo(int attacker, int target, float contrib) {
+    this.target = target;
+    this.attacker = attacker;
+    this.resourcesContributed = contrib;
+  }
+  boolean attackSuccessful() {
+    return agents[attacker].offence >= this.resourcesContributed && this.resourcesContributed >= agents[target].defence;
+  }
+  float damageDealt() {
+    if (this.attackSuccessful()) {
+      float damage =  this.resourcesContributed - agents[target].defence;
+      println("agent " + this.attacker + " attacked agent " + this.target + " dealing " + damage + " damage ");
+      return damage;
+    }
+    return 0;
   }
 }

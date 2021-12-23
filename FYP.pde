@@ -6,7 +6,7 @@ String[] agentTypes = {"ALTRUIST", "NARCISSIST"};
 Agent[] agents = new Agent[n];
 
 void setup() {
-  //frameRate(5);
+  frameRate(5);
   size(400, 400);
   for (int i=0; i<agents.length; i++) {
     int agentTypeIndex = int(random(agentTypes.length));
@@ -30,9 +30,9 @@ void setup() {
 void draw() {
   background(255);
 
-  if(n > 1){
+  if (n > 1) {
     genNeighbourhoods(agents, neighbourhoods);
-    runTreatySession(agents);
+    runInteractionSession(agents);
   }
 
 
@@ -48,21 +48,10 @@ void draw() {
   //noLoop();
 }
 
-void compileTreaties(Agent[] agents) { // take all proposals and give to agents
-
-  for (int i=0; i<agents.length; i++) {
-    ArrayList<TreatyProposal> setOfTreaties = agents[i].makeTreaties();
-    for (TreatyProposal t : setOfTreaties) {
-      int to = t.treatyTo;
-      agents[to].treaties.add(t);
-    }
-  }
-  println();
-}
-
 void printTreaties(Agent[] agents) {
   for (Agent a : agents) {
-    ArrayList<TreatyProposal> setOfTreaties = a.treaties;
+    ArrayList<TreatyProposal> setOfTreaties = a.activeTreaties;
+    println("AGENT " + a.getID() + " TREATIES:");
     for (TreatyProposal t : setOfTreaties) {
       t.Print();
     }
@@ -71,40 +60,36 @@ void printTreaties(Agent[] agents) {
 
 void visualiseTreaties(Agent[] agents) {
   for (Agent a : agents) {
-    ArrayList<TreatyProposal> setOfTreaties = a.treaties;
+    ArrayList<TreatyProposal> setOfTreaties = a.activeTreaties;
     for (TreatyProposal t : setOfTreaties) {
-      int agentFrom = t.treatyFrom;
-      PVector midpoint = new PVector(0.5*(a.pos.x + agents[agentFrom].pos.x), 0.5*(a.pos.y + agents[agentFrom].pos.y));
-      drawLine(agents[agentFrom].pos, a.pos);
-      text(t.treatyType, midpoint.x, midpoint.y);
+      Agent agentFrom = t.treatyFrom;
+      if (a != agentFrom) { // AGENT 1 MAKES TREATY (0, 1, NICE), THEN VISUALISES 1,1. THIS AVOIDS THIS BUG
+        PVector midpoint = new PVector(0.5*(a.pos.x + agentFrom.pos.x), 0.5*(a.pos.y + agentFrom.pos.y));
+        drawLine(agentFrom.pos, a.pos);
+        text(t.treatyType, midpoint.x, midpoint.y);
+      }
     }
   }
 }
 
-void runTreatySession(Agent[] agents) {
-  compileTreaties(agents);
-  for (Agent a : agents) {
-    a.reviewTreaties();
+void runInteractionSession(Agent[] agents) {
+  for (Agent a1 : agents) {
+    for (Agent a2 : agents) {
+      if (agentsCanInteract(a1, a2)) {
+        a1.offerTreaty(a2);
+      }
+    }
   }
   visualiseTreaties(agents);
+  //printTreaties(agents);
+  println();
 }
 
-void drawArrow(PVector from, PVector to) {
-  fill(0);
-  line(from.x, from.y, to.x, to.y);
-  pushMatrix();
-  translate(to.x, to.y);
-  PVector dir = to.copy().sub(from);
-  float heading = PVector.angleBetween(new PVector(0, 1), dir);
-  if (heading > PI/2) {
-    rotate(-heading);
-  } else {
-    rotate(heading);
-  }
-  triangle(-10, -agentSize, 0, 20-agentSize, 10, -agentSize);
-  popMatrix();
-}
 
 void drawLine(PVector from, PVector to) {
   line(from.x, from.y, to.x, to.y);
+}
+
+boolean agentsCanInteract(Agent a1, Agent a2) {
+  return a1 != a2 && a1.neighbourhood == a2.neighbourhood;
 }
