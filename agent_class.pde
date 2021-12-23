@@ -92,7 +92,7 @@ class Agent {
       fill(0);
     }
     ellipse(this.pos.x, this.pos.y, this.size, this.size);
-    fill(0);
+    fill(255);
     text(this.id, this.pos.x, this.pos.y);
   }
 
@@ -131,18 +131,17 @@ class Agent {
 
   utilityDecisionMessage decideUtilityAction() {
     float rand = random(1);
-    float quantity = random(this.pointsToInvest);
 
     if ( rand < 0.25) {
-      return new utilityDecisionMessage(this, "boostDefence", quantity);
+      return this.stockpileDefence();
     }
     if ( rand < 0.5) {
-      return new utilityDecisionMessage(this, "boostOffence", quantity);
+      return this.stockpileOffence();
     }
     if ( rand < 0.75) {
-      return new utilityDecisionMessage(this, "boostUtility", quantity);
+      return this.stockpileUtility();
     }
-    return new utilityDecisionMessage(this, "attack", random(this.offence));
+    return this.declareAttack();
   }
 
   AttackInfo compileAttack(Agent opponent, float contribution) {
@@ -150,15 +149,23 @@ class Agent {
     return thisAttack;
   }
 
-  void stockpileAttack() {
-    this.offence += random(this.pointsToInvest);
+  utilityDecisionMessage stockpileOffence() {
+    float quantity = random(this.pointsToInvest);
+    return new utilityDecisionMessage(this, "boostOffence", quantity);
   }
 
-  void stockpileDefence() {
-    this.defence += random(this.pointsToInvest);
+  utilityDecisionMessage stockpileDefence() {
+    float quantity = random(this.pointsToInvest);
+    return new utilityDecisionMessage(this, "boostDefence", quantity);
   }
 
-  void stockpileUtility() {
-    this.utility += random(this.pointsToInvest);
+  utilityDecisionMessage stockpileUtility() {
+    float quantity = random(this.pointsToInvest);
+    return new utilityDecisionMessage(this, "boostUtility", quantity);
+  }
+  
+  utilityDecisionMessage declareAttack() {
+    float quantity = random(this.offence);
+    return new utilityDecisionMessage(this, "attack", quantity);
   }
 }

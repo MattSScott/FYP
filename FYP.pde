@@ -6,7 +6,7 @@ String[] agentTypes = {"ALTRUIST", "NARCISSIST"};
 Agent[] agents = new Agent[n];
 
 void setup() {
-  frameRate(5);
+  frameRate(10);
   size(400, 400);
   for (int i=0; i<agents.length; i++) {
     int agentTypeIndex = int(random(agentTypes.length));
@@ -44,7 +44,7 @@ void draw() {
     //a.setHP(max(0,a.getHP()-1));
     //print(a.getHP());
   }
-
+  drawHealthBars(agents);
   //noLoop();
 }
 
@@ -75,12 +75,15 @@ void visualiseTreaties(Agent[] agents) {
 void updateUtility(utilityDecisionMessage msg) {
   switch (msg.type) {
   case "boostDefence":
+    println("agent " + msg.sender.getID() + " boosted defence from " + msg.sender.defence + " to " +  (msg.sender.defence + msg.quantity));
     msg.sender.defence += msg.quantity;
     break;
   case "boostOffence":
+    println("agent " + msg.sender.getID() + " boosted attack from " + msg.sender.offence + " to " +  (msg.sender.offence + msg.quantity));
     msg.sender.offence += msg.quantity;
     break;
   default:
+    println("agent " + msg.sender.getID() + " boosted personal utility from " + msg.sender.utility + " to " +  (msg.sender.utility + msg.quantity));
     msg.sender.utility += msg.quantity;
     break;
   }
@@ -91,10 +94,9 @@ void resolveAttack(AttackInfo atk) {
   float dmg = atk.damageDealt();
   float contrib = atk.resourcesContributed;
   atk.attacker.offence -= contrib;
-  atk.target.defence -= contrib;
+  atk.target.defence = max(atk.target.defence - contrib, 0);
   println("agent " + atk.target.getID() + "'s health has dropped from " + atk.target.getHP() + " to " + max(0, (atk.target.getHP() - dmg)));
   atk.target.setHP(max(0, atk.target.getHP() - dmg));
-  atk.attacker.pointsToInvest -= contrib;
   if (atk.target.getHP() == 0) {
     println("agent " + atk.target.getID() + " is dead");
   }
@@ -137,6 +139,22 @@ void runInteractionSession(Agent[] agents) {
 
 void drawLine(PVector from, PVector to) {
   line(from.x, from.y, to.x, to.y);
+}
+
+void drawHealthBars(Agent[] agents){
+  float hpBarWidth = 40;
+  float hpBarHeight = 10;
+  
+  for (Agent a : agents){
+    float hp = a.getHP();
+    float barWidth = map(hp, 0, 100, 0, hpBarWidth);
+    rectMode(CENTER);
+    fill(255);
+    rect(a.pos.x, a.pos.y - agentSize/2 - hpBarHeight, hpBarWidth, hpBarHeight);
+    rectMode(CORNER);
+    fill(0,0,255);
+    rect(a.pos.x - hpBarWidth/2, a.pos.y - agentSize/2 - 1.5*hpBarHeight, barWidth, hpBarHeight);
+  }
 }
 
 boolean agentsCanInteract(Agent a1, Agent a2) {

@@ -64,8 +64,8 @@ class AttackInfo {
   }
 
   float damageDealt() {
-    float damage =  this.resourcesContributed - target.defence;
-    println("agent " + this.attacker.getID() + " attacked agent " + this.target.getID() + " dealing " + max(0, damage) + " damage ");
-    return max(0, damage);
+    float damage =  max(0, this.resourcesContributed - target.defence);
+    println("agent " + this.attacker.getID() + " attacked agent " + this.target.getID() + " dealing " + damage + " damage ");
+    return damage;
   }
 }
