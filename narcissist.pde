@@ -22,4 +22,16 @@ class Narcissist extends Agent {
     }
     return response;
   }
+
+  utilityDecisionMessage decideUtilityAction() {
+    float rand = random(1);
+
+    if ( rand < 0.33) {
+      return this.stockpileDefence();
+    }
+    if ( rand < 0.66) {
+      return this.stockpileOffence();
+    }
+    return this.declareAttack();
+  }
 }

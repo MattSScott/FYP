@@ -1,9 +1,9 @@
-void genNeighbourhoods(Agent[] agents, int n_clusters) {
+void genNeighbourhoods(ArrayList<Agent> agents, int n_clusters) {
   PVector[] centers = new PVector[n_clusters];
   int[] chosenPoints = new int[n_clusters];
 
   for (int i=0; i<chosenPoints.length; i++) {
-    int randomIndex = int(random(agents.length));
+    int randomIndex = int(random(agents.size()));
     chosenPoints[i] = randomIndex;
     for (int j=0; j<i; j++) {
       if (chosenPoints[i] == chosenPoints[j]) {
@@ -13,18 +13,18 @@ void genNeighbourhoods(Agent[] agents, int n_clusters) {
   }
 
   for (int i=0; i<centers.length; i++) {
-    centers[i] = agents[chosenPoints[i]].pos;
+    centers[i] = agents.get(chosenPoints[i]).pos;
   }
 
   while (true) {
-    for (int i=0; i<agents.length; i++) {
-      agents[i].minDistanceToNeighbourhood = agents[i].pos.dist(centers[0]);
-      agents[i].neighbourhood = 0;
+    for (int i=0; i<agents.size(); i++) {
+      agents.get(i).minDistanceToNeighbourhood = agents.get(i).pos.dist(centers[0]);
+      agents.get(i).neighbourhood = 0;
       for (int j=1; j<centers.length; j++) {
-        float currDist = agents[i].pos.dist(centers[j]);
-        if (currDist < agents[i].minDistanceToNeighbourhood) {
-          agents[i].minDistanceToNeighbourhood = currDist;
-          agents[i].neighbourhood = j;
+        float currDist = agents.get(i).pos.dist(centers[j]);
+        if (currDist < agents.get(i).minDistanceToNeighbourhood) {
+          agents.get(i).minDistanceToNeighbourhood = currDist;
+          agents.get(i).neighbourhood = j;
         }
       }
     }
@@ -32,9 +32,9 @@ void genNeighbourhoods(Agent[] agents, int n_clusters) {
     for (int i=0; i<newCenters.length; i++) {
       newCenters[i] = new PVector(0.0, 0.0);
       int pointsPerCluster = 0;
-      for (int j=0; j<agents.length; j++) {
-        if (agents[j].neighbourhood == i) {
-          newCenters[i].add(agents[j].pos);
+      for (int j=0; j<agents.size(); j++) {
+        if (agents.get(j).neighbourhood == i) {
+          newCenters[i].add(agents.get(j).pos);
           pointsPerCluster++;
         }
       }

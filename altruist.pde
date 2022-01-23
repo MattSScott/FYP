@@ -23,4 +23,8 @@ class Altruist extends Agent {
     }
     return response;
   }
+  
+  utilityDecisionMessage decideUtilityAction() {
+    return this.stockpileUtility();
+  }
 }
