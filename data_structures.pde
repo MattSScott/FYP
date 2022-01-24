@@ -39,16 +39,22 @@ class Treaty {
   }
 }
 
-
-
-class utilityDecisionMessage {
+class ActionMessage {
   Agent sender;
   float quantity;
-  String type;
-  utilityDecisionMessage(Agent sender, String type, float quantity) {
+  actionType type;
+  ActionMessage(Agent sender, actionType type, float quantity) {
     this.sender = sender;
     this.quantity = quantity;
     this.type = type;
+  }
+}
+
+class AttackMessage extends ActionMessage {
+  Agent target;
+  AttackMessage(Agent sender, actionType type, float quantity, Agent target) {
+    super(sender, type, quantity);
+    this.target = target;
   }
 }
 

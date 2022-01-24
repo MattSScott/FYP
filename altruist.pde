@@ -24,7 +24,7 @@ class Altruist extends Agent {
     return response;
   }
   
-  utilityDecisionMessage decideUtilityAction() {
+  ActionMessage decideAction(ArrayList<Agent> nearbyAgents) {
     return this.stockpileUtility();
   }
 }

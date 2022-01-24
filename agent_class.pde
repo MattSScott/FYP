@@ -15,6 +15,7 @@ class Agent {
   float offence;
   float defence;
   float utility;
+  HashMap<Integer, Integer> agentProfile; // map agent id to
 
   Agent(int id, float x, float y, float size) {
     this.id = id;
@@ -96,6 +97,11 @@ class Agent {
     text(this.id, this.pos.x, this.pos.y);
   }
 
+  void offerAllTreaties(ArrayList<Agent> nearbyAgents) {
+    for (Agent a : nearbyAgents) {
+      this.offerTreaty(a);
+    }
+  }
 
   void offerTreaty(Agent a) {
     TreatyProposal newTreaty = new TreatyProposal(this, a, "BaseTreaty");
@@ -129,43 +135,49 @@ class Agent {
     return true;
   }
 
-  utilityDecisionMessage decideUtilityAction() {
+  ActionMessage decideAction(ArrayList<Agent> nearbyAgents) {
+
     float rand = random(1);
 
     if ( rand < 0.25) {
       return this.stockpileDefence();
     }
-    if ( rand < 0.5) {
+    if ( rand < 0.5 || nearbyAgents.size() == 0) {
       return this.stockpileOffence();
     }
     if ( rand < 0.75) {
       return this.stockpileUtility();
     }
-    return this.declareAttack();
+    int randomTarget = int(random(nearbyAgents.size()));
+    return this.declareAttack(nearbyAgents.get(randomTarget));
   }
 
-  AttackInfo compileAttack(Agent opponent, float contribution) {
-    AttackInfo thisAttack = new AttackInfo(this, opponent, contribution);
-    return thisAttack;
-  }
+  //AttackInfo compileAttack(Agent opponent, float contribution) {
+  //  AttackInfo thisAttack = new AttackInfo(this, opponent, contribution);
+  //  return thisAttack;
+  //}
 
-  utilityDecisionMessage stockpileOffence() {
+  ActionMessage stockpileOffence() {
     float quantity = random(this.pointsToInvest);
-    return new utilityDecisionMessage(this, "boostOffence", quantity);
+    return new ActionMessage(this, actionType.boostOffence, quantity);
   }
 
-  utilityDecisionMessage stockpileDefence() {
+  ActionMessage stockpileDefence() {
     float quantity = random(this.pointsToInvest);
-    return new utilityDecisionMessage(this, "boostDefence", quantity);
+    return new ActionMessage(this, actionType.boostDefence, quantity);
   }
 
-  utilityDecisionMessage stockpileUtility() {
+  ActionMessage stockpileUtility() {
     float quantity = random(this.pointsToInvest);
-    return new utilityDecisionMessage(this, "boostUtility", quantity);
+    return new ActionMessage(this, actionType.boostUtility, quantity);
   }
-  
-  utilityDecisionMessage declareAttack() {
+
+  ActionMessage declareAttack(Agent target) {
     float quantity = random(this.offence);
-    return new utilityDecisionMessage(this, "attack", quantity);
+    return new AttackMessage(this, actionType.launchAttack, quantity, target);
   }
+
+  //void buildAgentProfile(Agent a) {
+  //  a.lickButt();
+  //}
 }

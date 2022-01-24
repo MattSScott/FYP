@@ -15,6 +15,11 @@ class Server {
     this.aliveAgents = new ArrayList<Agent>(totalAgents);
   }
 
+
+  ArrayList<Agent> getAliveAgents() {
+    return this.aliveAgents;
+  }
+
   void initialiseAgents() {
     agentType[] socialMotives = agentType.values();
     for (int i=0; i<this.numInitialAgents; i++) {
@@ -23,13 +28,13 @@ class Server {
       Agent agent;
       switch(motive) {
       case ALTRUIST:
-        agent = new Altruist(i, random(width), random(height), agentSize);
+        agent = new Altruist(i+1, random(width), random(height), agentSize);
         break;
       case NARCISSIST:
-        agent = new Narcissist(i, random(width), random(height), agentSize);
+        agent = new Narcissist(i+1, random(width), random(height), agentSize);
         break;
       default:
-        agent = new Agent(i, random(width), random(height), agentSize);
+        agent = new Agent(i+1, random(width), random(height), agentSize);
         break;
       }
       this.totalAgents.add(agent);
@@ -69,13 +74,13 @@ class Server {
     }
   }
 
-  void updateUtility(utilityDecisionMessage msg) {
+  void updateUtility(ActionMessage msg) {
     switch (msg.type) {
-    case "boostDefence":
+    case boostDefence:
       println("agent " + msg.sender.getID() + " boosted defence from " + msg.sender.defence + " to " +  (msg.sender.defence + msg.quantity));
       msg.sender.defence += msg.quantity;
       break;
-    case "boostOffence":
+    case boostOffence:
       println("agent " + msg.sender.getID() + " boosted attack from " + msg.sender.offence + " to " +  (msg.sender.offence + msg.quantity));
       msg.sender.offence += msg.quantity;
       break;
@@ -97,13 +102,13 @@ class Server {
   }
 
 
-  void processUtilityAction(Agent a1, Agent a2) {
-    utilityDecisionMessage msg = a1.decideUtilityAction();
-    if (msg.type != "attack") {
-      updateUtility(msg);
+  void processAction(ActionMessage msg) {
+    if (msg.type != actionType.launchAttack) {
+      this.updateUtility(msg);
     } else {
-      AttackInfo atk = a1.compileAttack(a2, msg.quantity);
-      resolveAttack(atk);
+      AttackMessage atk = (AttackMessage)msg;
+      AttackInfo attackHandler = new AttackInfo(atk.sender, atk.target, atk.quantity);
+      this.resolveAttack(attackHandler);
     }
   }
 
@@ -114,24 +119,52 @@ class Server {
       }
       a.pointsToInvest += 10;
     }
-    this.filterDeadAgents(); // buggy
+    this.filterDeadAgents();
     //println(agents);
   }
 
 
+  //void runInteractionSession() {
+  //  for (Agent a1 : this.aliveAgents) {
+  //    for (Agent a2 : this.aliveAgents) {
+  //      if (agentsCanInteract(a1, a2)) {
+  //        a1.offerTreaty(a2);
+  //        this.processUtilityAction(a1, a2);
+  //      }
+  //    }
+  //  }
+  //  this.visualiseTreaties();
+  //  this.updateInvestmentPointsAndHP();
+  //  //printTreaties(agents);
+  //  println();
+  //}
+
   void runInteractionSession() {
-    for (Agent a1 : this.aliveAgents) {
-      for (Agent a2 : this.aliveAgents) {
-        if (agentsCanInteract(a1, a2)) {
-          a1.offerTreaty(a2);
-          this.processUtilityAction(a1, a2);
-        }
-      }
+    for (Agent a : this.aliveAgents) {
+      this.runTreatySession(a, this.getNearbyAgents(a));
+      this.runActionSession(a, this.getNearbyAgents(a));
     }
     this.visualiseTreaties();
     this.updateInvestmentPointsAndHP();
-    //printTreaties(agents);
-    println();
+  }
+
+  ArrayList<Agent> getNearbyAgents(Agent a) {
+    ArrayList<Agent> allowed = new ArrayList<Agent>();
+    for (Agent other : this.aliveAgents) {
+      if (agentsCanInteract(a, other)) {
+        allowed.add(other);
+      }
+    }
+    return allowed;
+  }
+
+  void runTreatySession(Agent a, ArrayList<Agent> nearbyAgents) {
+      a.offerAllTreaties(nearbyAgents);
+  }
+
+  void runActionSession(Agent a, ArrayList<Agent> nearbyAgents) {
+      ActionMessage action = a.decideAction(nearbyAgents);
+      this.processAction(action);
   }
 
 
@@ -156,22 +189,36 @@ class Server {
   }
 
   boolean agentsCanInteract(Agent a1, Agent a2) {
-    return a1 != a2 && a1.neighbourhood == a2.neighbourhood;// && a1.getHP() > 0 && a2.getHP() > 0; //Possible TODO - make an "alive agents" array and splice to avoid iteration???
+    return a1 != a2 && a1.neighbourhood == a2.neighbourhood;
   }
-  
+
+  void showAgents() {
+    for (Agent a : this.aliveAgents) {
+      a.drawAgent();
+      //a.moveRandom();
+      a.moveCalculated();
+    }
+    this.drawHealthBars();
+  }
+
   void run() {
     if (this.numAliveAgents > 1) {
-    genNeighbourhoods(this.aliveAgents, this.numAliveAgents / 2); // have num clusters = floor(1/2 total agents) 
-    this.runInteractionSession();
-  }
+      genNeighbourhoods(this.aliveAgents, this.numAliveAgents / 2); // have num clusters = floor(1/2 total agents)
+      this.runInteractionSession();
+    }
+    this.showAgents();
 
+    if (this.numAliveAgents == 1) {
+      println("Agent " + this.aliveAgents.get(0).getID() + " is victorious!");
+      noLoop();
+      println();
+      println("SIMULATION END");
+      println();
+    } else {
 
-  for (Agent a : this.aliveAgents) {
-    a.drawAgent();
-    //a.moveRandom();
-    a.moveCalculated();
-  }
-  this.drawHealthBars();
-  //noLoop();
+      println();
+      println("NEW TURN");
+      println();
+    }
   }
 }
