@@ -42,7 +42,7 @@ class Server {
   }
 
   void filterDeadAgents() {
-    for (int i=0; i<this.aliveAgents.size(); i++) {
+    for (int i=this.aliveAgents.size() - 1; i>=0; i--) {
       if (this.aliveAgents.get(i).getHP() == 0) {
         this.aliveAgents.remove(i);
         this.numAliveAgents--;
@@ -120,24 +120,7 @@ class Server {
       a.pointsToInvest += 10;
     }
     this.filterDeadAgents();
-    //println(agents);
   }
-
-
-  //void runInteractionSession() {
-  //  for (Agent a1 : this.aliveAgents) {
-  //    for (Agent a2 : this.aliveAgents) {
-  //      if (agentsCanInteract(a1, a2)) {
-  //        a1.offerTreaty(a2);
-  //        this.processUtilityAction(a1, a2);
-  //      }
-  //    }
-  //  }
-  //  this.visualiseTreaties();
-  //  this.updateInvestmentPointsAndHP();
-  //  //printTreaties(agents);
-  //  println();
-  //}
 
   void runInteractionSession() {
     for (Agent a : this.aliveAgents) {
@@ -146,6 +129,7 @@ class Server {
     }
     this.visualiseTreaties();
     this.updateInvestmentPointsAndHP();
+    this.filterExpiredTreaties();
   }
 
   ArrayList<Agent> getNearbyAgents(Agent a) {
@@ -159,12 +143,23 @@ class Server {
   }
 
   void runTreatySession(Agent a, ArrayList<Agent> nearbyAgents) {
-      a.offerAllTreaties(nearbyAgents);
+    a.offerAllTreaties(nearbyAgents);
+  }
+
+  void filterExpiredTreaties() {
+    for (Agent a : this.aliveAgents) {
+      for (int i=a.activeTreaties.size() - 1; i>=0; i--) {
+        TreatyProposal t = a.activeTreaties.get(i);
+        if (t.treatyFrom.getHP() == 0 || t.treatyTo.getHP() == 0) {
+          a.activeTreaties.remove(i);
+        }
+      }
+    }
   }
 
   void runActionSession(Agent a, ArrayList<Agent> nearbyAgents) {
-      ActionMessage action = a.decideAction(nearbyAgents);
-      this.processAction(action);
+    ActionMessage action = a.decideAction(nearbyAgents);
+    this.processAction(action);
   }
 
 
