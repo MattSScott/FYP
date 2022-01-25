@@ -13,12 +13,15 @@ enum actionType {
     launchAttack
 }
 
+FlockingData flockData;
+
 Server server;
 
 void setup() {
-  frameRate(15);
-  size(400, 400);
-  server = new Server(4, 40);
+  //frameRate(35);
+  size(800, 800);
+  server = new Server(20, 20);
+  flockData = new FlockingData(1,12.5,30,100); //cohesion, alignment, separation, separation distance
 }
 
 void draw() {

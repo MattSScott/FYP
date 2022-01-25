@@ -124,8 +124,9 @@ class Server {
 
   void runInteractionSession() {
     for (Agent a : this.aliveAgents) {
-      this.runTreatySession(a, this.getNearbyAgents(a));
-      this.runActionSession(a, this.getNearbyAgents(a));
+      ArrayList<Agent> nearby = this.getNearbyAgents(a);
+      this.runTreatySession(a, nearby);
+      this.runActionSession(a, nearby);
     }
     this.visualiseTreaties();
     this.updateInvestmentPointsAndHP();
@@ -191,7 +192,8 @@ class Server {
     for (Agent a : this.aliveAgents) {
       a.drawAgent();
       //a.moveRandom();
-      a.moveCalculated();
+      //a.moveCalculated();
+      a.flock(this.aliveAgents);
     }
     this.drawHealthBars();
   }
@@ -199,7 +201,7 @@ class Server {
   void run() {
     if (this.numAliveAgents > 1) {
       genNeighbourhoods(this.aliveAgents, this.numAliveAgents / 2); // have num clusters = floor(1/2 total agents)
-      this.runInteractionSession();
+      //this.runInteractionSession();
     }
     this.showAgents();
 

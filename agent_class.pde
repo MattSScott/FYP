@@ -9,8 +9,8 @@ class Agent {
   float minDistanceToNeighbourhood; // closest I am to other lads
   ArrayList<TreatyProposal> activeTreaties; // what propositions have been made to me so far
   private float speed;
-  private PVector glideVector; //destination used for smooth agent movement
-  private PVector target;
+  private PVector velocity; //destination used for smooth agent movement
+  //private PVector target;
   float pointsToInvest;
   float offence;
   float defence;
@@ -28,8 +28,9 @@ class Agent {
     this.HP = 100;
     this.speed = random(1, 6);
     //this.speed = 0;
-    this.target = new PVector( random(width), random(height) );
-    this.glideVector = this.calculateGlideVector(target.copy());
+    //this.target = new PVector( random(width), random(height) );
+    //this.velocity = this.calculateVelocity(target.copy());
+    this.velocity = new PVector( random(-10, 10), random(-10, 10) );
     this.offence = 5;
     this.defence = 5;
     this.utility = 0;
@@ -47,6 +48,10 @@ class Agent {
 
   float getHP() {
     return this.HP;
+  }
+
+  PVector getVelocity() {
+    return this.velocity.copy();
   }
 
   void agentConstrain() {
@@ -70,17 +75,25 @@ class Agent {
     this.agentConstrain();
   }
 
-  void moveCalculated() {
-    if (dist(this.pos.x, this.pos.y, this.target.x, this.target.y) <= 5 ) {
-      this.target = new PVector( random(width), random(height) );
-      this.glideVector = this.calculateGlideVector(this.target.copy());
-    }
-    this.pos.add(glideVector);
-    //println(this.pos, this.target);
-    this.agentConstrain();
+  //void moveCalculated() {
+  //  if (dist(this.pos.x, this.pos.y, this.target.x, this.target.y) <= 5 ) {
+  //    this.target = new PVector( random(width), random(height) );
+  //    this.velocity = this.calculateVelocity(this.target.copy());
+  //  }
+  //  this.pos.add(velocity);
+  //  //println(this.pos, this.target);
+  //  this.agentConstrain();
+  //}
+
+  void flock(ArrayList<Agent> allAgents) {
+    ArrayList<Agent> boids = this.filterAgentsForFlocking(allAgents);
+    this.velocity.add(this.calcFlock(boids)).mult(0.75);
+    this.pos.add(this.velocity);
+    //this.agentConstrain();
+    println(this.velocity);
   }
 
-  PVector calculateGlideVector(PVector newPos) {
+  PVector calculateVelocity(PVector newPos) {
     PVector newDir = newPos.sub(this.pos);
     newDir.mult(speed/150.0);
     return newDir;
@@ -93,7 +106,8 @@ class Agent {
       fill(0);
     }
     ellipse(this.pos.x, this.pos.y, this.size, this.size);
-    fill(255);
+    fill(0);
+    textAlign(CENTER);
     text(this.id, this.pos.x, this.pos.y);
   }
 
@@ -152,10 +166,6 @@ class Agent {
     return this.declareAttack(nearbyAgents.get(randomTarget));
   }
 
-  //AttackInfo compileAttack(Agent opponent, float contribution) {
-  //  AttackInfo thisAttack = new AttackInfo(this, opponent, contribution);
-  //  return thisAttack;
-  //}
 
   ActionMessage stockpileOffence() {
     float quantity = random(this.pointsToInvest);
@@ -177,7 +187,64 @@ class Agent {
     return new AttackMessage(this, actionType.launchAttack, quantity, target);
   }
 
-  //void buildAgentProfile(Agent a) {
-  //  a.lickButt();
-  //}
+
+  ArrayList<Agent> filterAgentsForFlocking(ArrayList<Agent> allAgents) { // override to flock conditionally
+    return allAgents;
+  }
+
+  PVector calcFlockCohesion(ArrayList<Agent> boids) {
+    PVector avgPos = new PVector(width/2, height/2);
+
+
+    for (Agent boid : boids) {
+      //if (boid != this) {
+        avgPos.add(boid.pos);
+      //}
+    }
+
+    avgPos.div(boids.size());
+
+    avgPos.sub(this.pos);
+
+    return avgPos.mult(flockData.cohesionFactor / 100);
+  }
+
+  PVector calcFlockAlignment(ArrayList<Agent> boids) {
+    PVector avgVel = new PVector();
+
+    for (Agent boid : boids) {
+      if (boid != this) {
+        avgVel.add(boid.getVelocity());
+      }
+    }
+
+    avgVel.div(boids.size() - 1);
+
+    avgVel.sub(this.velocity);
+
+    return avgVel.mult(flockData.alignmentFactor / 100);
+  }
+
+  PVector calcFlockSeparation(ArrayList<Agent> boids) {
+    PVector separate = new PVector();
+
+    for (Agent boid : boids) {
+      if (boid != this) {
+        PVector sep = boid.pos.copy().sub(this.pos);
+        if (sep.mag() < flockData.separationDistance) {
+          separate.sub(sep);
+        }
+      }
+    }
+
+    return separate.mult(flockData.separationFactor / 100);
+  }
+
+  PVector calcFlock(ArrayList<Agent> boids) {
+    PVector c = this.calcFlockCohesion(boids);
+    PVector a = this.calcFlockAlignment(boids);
+    PVector s = this.calcFlockSeparation(boids);
+
+    return c.add(a).add(s);
+  }
 }

@@ -75,3 +75,17 @@ class AttackInfo {
     return damage;
   }
 }
+
+
+class FlockingData {
+  float cohesionFactor;
+  float alignmentFactor;
+  float separationFactor;
+  float separationDistance;
+  FlockingData(float c, float a, float sf, float sd) {
+    this.cohesionFactor = c;
+    this.alignmentFactor = a;
+    this.separationFactor = sf;
+    this.separationDistance = sd;
+  }
+}
