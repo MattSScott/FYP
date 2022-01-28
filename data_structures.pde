@@ -1,7 +1,7 @@
 class TreatyProposal {
   Agent treatyFrom;
   Agent treatyTo;
-  String treatyType;
+  String treatyType; //Treaty after MVP
   TreatyProposal(Agent treatyFrom, Agent treatyTo, String treatyType) {
     this.treatyFrom = treatyFrom;
     this.treatyTo = treatyTo;

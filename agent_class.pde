@@ -1,5 +1,5 @@
 class Agent {
-  PVector pos; // where am I on the screen
+  private PVector pos; // where am I on the screen
   private float size;
   protected color col; // goody or baddie
   private int id; // what's my name
@@ -10,7 +10,7 @@ class Agent {
   ArrayList<TreatyProposal> activeTreaties; // what propositions have been made to me so far
   private float speed;
   private PVector velocity; //destination used for smooth agent movement
-  //private PVector target;
+  private PVector target;
   float pointsToInvest;
   float offence;
   float defence;
@@ -28,9 +28,9 @@ class Agent {
     this.HP = 100;
     this.speed = random(1, 6);
     //this.speed = 0;
-    //this.target = new PVector( random(width), random(height) );
-    //this.velocity = this.calculateVelocity(target.copy());
-    this.velocity = new PVector( random(-10, 10), random(-10, 10) );
+    this.target = new PVector( random(width), random(height) );
+    this.velocity = this.calculateVelocity(target.copy());
+    //this.velocity = new PVector( random(-10, 10), random(-10, 10) );
     this.offence = 5;
     this.defence = 5;
     this.utility = 0;
@@ -49,6 +49,10 @@ class Agent {
   float getHP() {
     return this.HP;
   }
+
+  //PVector getPos() {
+  //  return this.pos.copy();
+  //}
 
   PVector getVelocity() {
     return this.velocity.copy();
@@ -75,22 +79,22 @@ class Agent {
     this.agentConstrain();
   }
 
-  //void moveCalculated() {
-  //  if (dist(this.pos.x, this.pos.y, this.target.x, this.target.y) <= 5 ) {
-  //    this.target = new PVector( random(width), random(height) );
-  //    this.velocity = this.calculateVelocity(this.target.copy());
-  //  }
-  //  this.pos.add(velocity);
-  //  //println(this.pos, this.target);
-  //  this.agentConstrain();
-  //}
+  void moveCalculated() {
+    if (dist(this.pos.x, this.pos.y, this.target.x, this.target.y) <= 5 ) {
+      this.target = new PVector( random(width), random(height) );
+      this.velocity = this.calculateVelocity(this.target.copy());
+    }
+    this.pos.add(velocity);
+    //println(this.pos, this.target);
+    this.agentConstrain();
+  }
 
   void flock(ArrayList<Agent> allAgents) {
     ArrayList<Agent> boids = this.filterAgentsForFlocking(allAgents);
     this.velocity.add(this.calcFlock(boids)).mult(0.75);
     this.pos.add(this.velocity);
     //this.agentConstrain();
-    println(this.velocity);
+    //println(this.velocity);
   }
 
   PVector calculateVelocity(PVector newPos) {
@@ -111,21 +115,35 @@ class Agent {
     text(this.id, this.pos.x, this.pos.y);
   }
 
-  void offerAllTreaties(ArrayList<Agent> nearbyAgents) {
+  ArrayList<TreatyProposal> offerAllTreaties(ArrayList<Agent> nearbyAgents) {
+    ArrayList<TreatyProposal> allTreatyOffers = new ArrayList<TreatyProposal>();
     for (Agent a : nearbyAgents) {
-      this.offerTreaty(a);
-    }
-  }
-
-  void offerTreaty(Agent a) {
-    TreatyProposal newTreaty = new TreatyProposal(this, a, "BaseTreaty");
-    if (random(1) < 0.001 && this.canOfferTreaty(newTreaty)) {
-      TreatyResponse newTreatyResponse = a.reviewTreaty(newTreaty);
-      if (newTreatyResponse.response) {
-        this.activeTreaties.add(newTreaty);
-        a.activeTreaties.add(newTreaty);
+      if (this.willOfferTreaty(a)) {
+        TreatyProposal offer = this.generateTreaty(a);
+        if(this.canOfferTreaty(offer)){
+          allTreatyOffers.add(offer);
+        }
       }
     }
+    return allTreatyOffers;
+  }
+
+  //void offerTreaty(Agent a) {
+  //  TreatyProposal newTreaty = new TreatyProposal(this, a, "BaseTreaty");
+  //  if (random(1) < 0.001 && this.canOfferTreaty(newTreaty)) {
+  //    TreatyResponse newTreatyResponse = a.reviewTreaty(newTreaty);
+  //    if (newTreatyResponse.response) {
+  //      this.activeTreaties.add(newTreaty);
+  //      a.activeTreaties.add(newTreaty);
+  //    }
+  //  }
+  //}
+  TreatyProposal generateTreaty(Agent a) { // selectively generate treaty based on agent
+    return new TreatyProposal(this, a, "BaseTreaty");
+  }
+
+  boolean willOfferTreaty(Agent a) { // check if treaty will be offered based on trust/behaviour etc
+    return random(1) < 0.001 && a.id > 0;
   }
 
   TreatyResponse reviewTreaty(TreatyProposal treaty) {
@@ -193,12 +211,12 @@ class Agent {
   }
 
   PVector calcFlockCohesion(ArrayList<Agent> boids) {
-    PVector avgPos = new PVector(width/2, height/2);
+    PVector avgPos = new PVector();
 
 
     for (Agent boid : boids) {
       //if (boid != this) {
-        avgPos.add(boid.pos);
+      avgPos.add(boid.pos);
       //}
     }
 
@@ -214,7 +232,7 @@ class Agent {
 
     for (Agent boid : boids) {
       if (boid != this) {
-        avgVel.add(boid.getVelocity());
+        avgVel.add(boid.velocity);
       }
     }
 

@@ -4,15 +4,23 @@ class Narcissist extends Agent {
     this.col = color(255, 0, 0);
   }
 
-  void offerTreaty(Agent a) {
-    TreatyProposal newTreaty = new TreatyProposal(this, a, "NastyTreaty");
-    if (random(1) < 0.5 && this.canOfferTreaty(newTreaty)) {
-      TreatyResponse newTreatyResponse = a.reviewTreaty(newTreaty);
-      if (newTreatyResponse.response) {
-        this.activeTreaties.add(newTreaty);
-        a.activeTreaties.add(newTreaty);
-      }
-    }
+  //void offerTreaty(Agent a) {
+  //  TreatyProposal newTreaty = new TreatyProposal(this, a, "NastyTreaty");
+  //  if (random(1) < 0.5 && this.canOfferTreaty(newTreaty)) {
+  //    TreatyResponse newTreatyResponse = a.reviewTreaty(newTreaty);
+  //    if (newTreatyResponse.response) {
+  //      this.activeTreaties.add(newTreaty);
+  //      a.activeTreaties.add(newTreaty);
+  //    }
+  //  }
+  //}
+
+  TreatyProposal generateTreaty(Agent a) { // selectively generate treaty based on agent
+    return new TreatyProposal(this, a, "NastyTreaty");
+  }
+
+  boolean willOfferTreaty(Agent a) { // check if treaty will be offered based on trust/behaviour etc
+    return random(1) < 0.01 && a.id > 0;
   }
 
   TreatyResponse reviewTreaty(TreatyProposal treaty) {
@@ -23,7 +31,7 @@ class Narcissist extends Agent {
     return response;
   }
 
-  ActionMessage decideAction(ArrayList<Agent> nearbyAgents){
+  ActionMessage decideAction(ArrayList<Agent> nearbyAgents) {
     float rand = random(1);
 
     if ( rand < 0.33) {
@@ -33,9 +41,9 @@ class Narcissist extends Agent {
       return this.stockpileOffence();
     }
     Agent weakestAgent = nearbyAgents.get(0);
-    for(int i=1; i<nearbyAgents.size(); i++){
+    for (int i=1; i<nearbyAgents.size(); i++) {
       Agent currentAgent = nearbyAgents.get(i);
-      if(currentAgent.defence < weakestAgent.defence){
+      if (currentAgent.defence < weakestAgent.defence) {
         weakestAgent = currentAgent;
       }
     }
