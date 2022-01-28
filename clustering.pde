@@ -58,8 +58,8 @@ void genNeighbourhoods(ArrayList<Agent> agents, int n_clusters) {
   //  p.show();
   //}
 
-  for (PVector centroid : centers) {
-    fill(0, 255, 0);
-    ellipse(centroid.x, centroid.y, 10, 10);
-  }
+  //for (PVector centroid : centers) {
+  //  fill(0, 255, 0);
+  //  ellipse(centroid.x, centroid.y, 10, 10);
+  //}
 }

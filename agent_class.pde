@@ -1,5 +1,5 @@
 class Agent {
-  PVector pos; // where am I on the screen
+  private PVector pos; // where am I on the screen
   private float size;
   protected color col; // goody or baddie
   private int id; // what's my name
@@ -9,7 +9,7 @@ class Agent {
   float minDistanceToNeighbourhood; // closest I am to other lads
   ArrayList<TreatyProposal> activeTreaties; // what propositions have been made to me so far
   private float speed;
-  private PVector glideVector; //destination used for smooth agent movement
+  private PVector velocity; //destination used for smooth agent movement
   private PVector target;
   float pointsToInvest;
   float offence;
@@ -29,7 +29,8 @@ class Agent {
     this.speed = random(1, 6);
     //this.speed = 0;
     this.target = new PVector( random(width), random(height) );
-    this.glideVector = this.calculateGlideVector(target.copy());
+    this.velocity = this.calculateVelocity(target.copy());
+    //this.velocity = new PVector( random(-10, 10), random(-10, 10) );
     this.offence = 5;
     this.defence = 5;
     this.utility = 0;
@@ -47,6 +48,14 @@ class Agent {
 
   float getHP() {
     return this.HP;
+  }
+
+  //PVector getPos() {
+  //  return this.pos.copy();
+  //}
+
+  PVector getVelocity() {
+    return this.velocity.copy();
   }
 
   void agentConstrain() {
@@ -73,14 +82,22 @@ class Agent {
   void moveCalculated() {
     if (dist(this.pos.x, this.pos.y, this.target.x, this.target.y) <= 5 ) {
       this.target = new PVector( random(width), random(height) );
-      this.glideVector = this.calculateGlideVector(this.target.copy());
+      this.velocity = this.calculateVelocity(this.target.copy());
     }
-    this.pos.add(glideVector);
+    this.pos.add(velocity);
     //println(this.pos, this.target);
     this.agentConstrain();
   }
 
-  PVector calculateGlideVector(PVector newPos) {
+  void flock(ArrayList<Agent> allAgents) {
+    ArrayList<Agent> boids = this.filterAgentsForFlocking(allAgents);
+    this.velocity.add(this.calcFlock(boids)).mult(0.75);
+    this.pos.add(this.velocity);
+    //this.agentConstrain();
+    //println(this.velocity);
+  }
+
+  PVector calculateVelocity(PVector newPos) {
     PVector newDir = newPos.sub(this.pos);
     newDir.mult(speed/150.0);
     return newDir;
@@ -93,25 +110,40 @@ class Agent {
       fill(0);
     }
     ellipse(this.pos.x, this.pos.y, this.size, this.size);
-    fill(255);
+    fill(0);
+    textAlign(CENTER);
     text(this.id, this.pos.x, this.pos.y);
   }
 
-  void offerAllTreaties(ArrayList<Agent> nearbyAgents) {
+  ArrayList<TreatyProposal> offerAllTreaties(ArrayList<Agent> nearbyAgents) {
+    ArrayList<TreatyProposal> allTreatyOffers = new ArrayList<TreatyProposal>();
     for (Agent a : nearbyAgents) {
-      this.offerTreaty(a);
-    }
-  }
-
-  void offerTreaty(Agent a) {
-    TreatyProposal newTreaty = new TreatyProposal(this, a, "BaseTreaty");
-    if (random(1) < 0.001 && this.canOfferTreaty(newTreaty)) {
-      TreatyResponse newTreatyResponse = a.reviewTreaty(newTreaty);
-      if (newTreatyResponse.response) {
-        this.activeTreaties.add(newTreaty);
-        a.activeTreaties.add(newTreaty);
+      if (this.willOfferTreaty(a)) {
+        TreatyProposal offer = this.generateTreaty(a);
+        if(this.canOfferTreaty(offer)){
+          allTreatyOffers.add(offer);
+        }
       }
     }
+    return allTreatyOffers;
+  }
+
+  //void offerTreaty(Agent a) {
+  //  TreatyProposal newTreaty = new TreatyProposal(this, a, "BaseTreaty");
+  //  if (random(1) < 0.001 && this.canOfferTreaty(newTreaty)) {
+  //    TreatyResponse newTreatyResponse = a.reviewTreaty(newTreaty);
+  //    if (newTreatyResponse.response) {
+  //      this.activeTreaties.add(newTreaty);
+  //      a.activeTreaties.add(newTreaty);
+  //    }
+  //  }
+  //}
+  TreatyProposal generateTreaty(Agent a) { // selectively generate treaty based on agent
+    return new TreatyProposal(this, a, "BaseTreaty");
+  }
+
+  boolean willOfferTreaty(Agent a) { // check if treaty will be offered based on trust/behaviour etc
+    return random(1) < 0.001 && a.id > 0;
   }
 
   TreatyResponse reviewTreaty(TreatyProposal treaty) {
@@ -152,10 +184,6 @@ class Agent {
     return this.declareAttack(nearbyAgents.get(randomTarget));
   }
 
-  //AttackInfo compileAttack(Agent opponent, float contribution) {
-  //  AttackInfo thisAttack = new AttackInfo(this, opponent, contribution);
-  //  return thisAttack;
-  //}
 
   ActionMessage stockpileOffence() {
     float quantity = random(this.pointsToInvest);
@@ -177,7 +205,64 @@ class Agent {
     return new AttackMessage(this, actionType.launchAttack, quantity, target);
   }
 
-  //void buildAgentProfile(Agent a) {
-  //  a.lickButt();
-  //}
+
+  ArrayList<Agent> filterAgentsForFlocking(ArrayList<Agent> allAgents) { // override to flock conditionally
+    return allAgents;
+  }
+
+  PVector calcFlockCohesion(ArrayList<Agent> boids) {
+    PVector avgPos = new PVector();
+
+
+    for (Agent boid : boids) {
+      //if (boid != this) {
+      avgPos.add(boid.pos);
+      //}
+    }
+
+    avgPos.div(boids.size());
+
+    avgPos.sub(this.pos);
+
+    return avgPos.mult(flockData.cohesionFactor / 100);
+  }
+
+  PVector calcFlockAlignment(ArrayList<Agent> boids) {
+    PVector avgVel = new PVector();
+
+    for (Agent boid : boids) {
+      if (boid != this) {
+        avgVel.add(boid.velocity);
+      }
+    }
+
+    avgVel.div(boids.size() - 1);
+
+    avgVel.sub(this.velocity);
+
+    return avgVel.mult(flockData.alignmentFactor / 100);
+  }
+
+  PVector calcFlockSeparation(ArrayList<Agent> boids) {
+    PVector separate = new PVector();
+
+    for (Agent boid : boids) {
+      if (boid != this) {
+        PVector sep = boid.pos.copy().sub(this.pos);
+        if (sep.mag() < flockData.separationDistance) {
+          separate.sub(sep);
+        }
+      }
+    }
+
+    return separate.mult(flockData.separationFactor / 100);
+  }
+
+  PVector calcFlock(ArrayList<Agent> boids) {
+    PVector c = this.calcFlockCohesion(boids);
+    PVector a = this.calcFlockAlignment(boids);
+    PVector s = this.calcFlockSeparation(boids);
+
+    return c.add(a).add(s);
+  }
 }

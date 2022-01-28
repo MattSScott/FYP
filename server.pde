@@ -67,6 +67,7 @@ class Server {
         Agent agentFrom = t.treatyFrom;
         if (a != agentFrom) { // AGENT 1 MAKES TREATY (0, 1, NICE), THEN VISUALISES 1,1. THIS AVOIDS THIS BUG
           PVector midpoint = new PVector(0.5*(a.pos.x + agentFrom.pos.x), 0.5*(a.pos.y + agentFrom.pos.y));
+          fill(0);
           this.drawLine(agentFrom.pos, a.pos);
           text(t.treatyType, midpoint.x, midpoint.y);
         }
@@ -124,8 +125,9 @@ class Server {
 
   void runInteractionSession() {
     for (Agent a : this.aliveAgents) {
-      this.runTreatySession(a, this.getNearbyAgents(a));
-      this.runActionSession(a, this.getNearbyAgents(a));
+      ArrayList<Agent> nearby = this.getNearbyAgents(a);
+      this.runTreatySession(a, nearby);
+      this.runActionSession(a, nearby);
     }
     this.visualiseTreaties();
     this.updateInvestmentPointsAndHP();
@@ -143,7 +145,15 @@ class Server {
   }
 
   void runTreatySession(Agent a, ArrayList<Agent> nearbyAgents) {
-    a.offerAllTreaties(nearbyAgents);
+    ArrayList<TreatyProposal> proposals = a.offerAllTreaties(nearbyAgents); // receive list of treaty offers for each agent
+    for (TreatyProposal proposal : proposals) {
+      Agent receiver = proposal.treatyTo;
+      TreatyResponse newTreatyResponse = receiver.reviewTreaty(proposal); // make subject of treaty review it
+      if (newTreatyResponse.response) {
+        a.activeTreaties.add(proposal);
+        receiver.activeTreaties.add(proposal);
+      }
+    }
   }
 
   void filterExpiredTreaties() {
@@ -191,7 +201,9 @@ class Server {
     for (Agent a : this.aliveAgents) {
       a.drawAgent();
       //a.moveRandom();
-      a.moveCalculated();
+      //a.moveCalculated();
+      a.flock(this.aliveAgents);
+      //println(a.activeTreaties);
     }
     this.drawHealthBars();
   }

@@ -1,7 +1,7 @@
 class TreatyProposal {
   Agent treatyFrom;
   Agent treatyTo;
-  String treatyType;
+  String treatyType; //Treaty after MVP
   TreatyProposal(Agent treatyFrom, Agent treatyTo, String treatyType) {
     this.treatyFrom = treatyFrom;
     this.treatyTo = treatyTo;
@@ -73,5 +73,19 @@ class AttackInfo {
     float damage =  max(0, this.resourcesContributed - target.defence);
     println("agent " + this.attacker.getID() + " attacked agent " + this.target.getID() + " dealing " + damage + " damage ");
     return damage;
+  }
+}
+
+
+class FlockingData {
+  float cohesionFactor;
+  float alignmentFactor;
+  float separationFactor;
+  float separationDistance;
+  FlockingData(float c, float a, float sf, float sd) {
+    this.cohesionFactor = c;
+    this.alignmentFactor = a;
+    this.separationFactor = sf;
+    this.separationDistance = sd;
   }
 }
