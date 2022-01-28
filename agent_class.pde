@@ -1,6 +1,6 @@
 class Agent {
   private PVector pos; // where am I on the screen
-  private float size;
+  private float baseSize;
   protected color col; // goody or baddie
   private int id; // what's my name
   private float HP; //current HP
@@ -20,7 +20,7 @@ class Agent {
   Agent(int id, float x, float y, float size) {
     this.id = id;
     this.pos = new PVector(x, y);
-    this.size = size;
+    this.baseSize = size;
     this.col = color(0, 0, 0);
     this.alive = true;
     this.neighbourhood = -1;
@@ -103,13 +103,30 @@ class Agent {
     return newDir;
   }
 
-  void drawAgent() {
+  void drawAgent(String s) {
+    
+    float size;
+    
+    switch (s) {
+      case "utility":
+      size = map(this.utility, 0, 500, 5, 60);
+      break;
+      case "offense":
+      size = map(this.offence, 0, 200, 5, 60);
+      break;
+      case "defence":
+      size = map(this.defence, 0, 200, 5, 60);
+      break;
+      default:
+      size = this.baseSize;
+    }
+    
     if (this.HP > 0) {
       fill(this.col);
     } else {
       fill(0);
     }
-    ellipse(this.pos.x, this.pos.y, this.size, this.size);
+    ellipse(this.pos.x, this.pos.y, size, size);
     fill(0);
     textAlign(CENTER);
     text(this.id, this.pos.x, this.pos.y);

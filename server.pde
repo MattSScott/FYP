@@ -199,7 +199,7 @@ class Server {
 
   void showAgents() {
     for (Agent a : this.aliveAgents) {
-      a.drawAgent();
+      a.drawAgent(toggleActionButton.text);
       //a.moveRandom();
       //a.moveCalculated();
       a.flock(this.aliveAgents);
