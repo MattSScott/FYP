@@ -5,9 +5,9 @@ class Config {
   
   Config() {
     this.agents = new HashMap<agentType, Integer>();
-    agents.put(agentType.NARCISSIST, 3);
-    agents.put(agentType.ALTRUIST, 0);
-    this.randomAgents = 2;
+    agents.put(agentType.NARCISSIST, 1);
+    agents.put(agentType.ALTRUIST, 3);
+    this.randomAgents = 0;
     this.agentSize = 20;
   }
 }

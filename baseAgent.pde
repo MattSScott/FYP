@@ -2,7 +2,7 @@ class Agent {
   private PVector pos; // where am I on the screen
   private float baseSize;
   protected color col; // goody or baddie
-  private int id; // what's my name
+  private int ID; // what's my name
   private float HP; //current HP
   boolean alive; // am I alive or dead
   int neighbourhood; // the other agents I'm close enough to interact with
@@ -15,10 +15,10 @@ class Agent {
   float offence;
   float defence;
   float utility;
-  HashMap<Integer, Integer> agentProfile; // map agent id to
+  HashMap<Integer, AgentProfile> agentProfiles; // map agent id to struct of utility choices and treaty choices
 
   Agent(int id, float x, float y, float size) {
-    this.id = id;
+    this.ID = id;
     this.pos = new PVector(x, y);
     this.baseSize = size;
     this.col = color(0, 0, 0);
@@ -34,12 +34,13 @@ class Agent {
     this.offence = 5;
     this.defence = 5;
     this.utility = 0;
-    this.pointsToInvest = 10;
+    this.pointsToInvest = 50;
+    this.agentProfiles = new HashMap<Integer, AgentProfile>();
   }
 
 
   int getID() {
-    return this.id;
+    return this.ID;
   }
 
   void setHP(float newHP) {
@@ -104,23 +105,23 @@ class Agent {
   }
 
   void drawAgent(String s) {
-    
+
     float size;
-    
+
     switch (s) {
-      case "utility":
+    case "utility":
       size = map(this.utility, 0, 500, 5, 60);
       break;
-      case "offense":
+    case "offense":
       size = map(this.offence, 0, 200, 5, 60);
       break;
-      case "defence":
+    case "defence":
       size = map(this.defence, 0, 200, 5, 60);
       break;
-      default:
+    default:
       size = this.baseSize;
     }
-    
+
     if (this.HP > 0) {
       fill(this.col);
     } else {
@@ -129,15 +130,17 @@ class Agent {
     ellipse(this.pos.x, this.pos.y, size, size);
     fill(0);
     textAlign(CENTER);
-    text(this.id, this.pos.x, this.pos.y);
+    text(this.ID, this.pos.x, this.pos.y);
   }
+
+  // TREATY SESSION //
 
   ArrayList<TreatyProposal> offerAllTreaties(ArrayList<Agent> nearbyAgents) {
     ArrayList<TreatyProposal> allTreatyOffers = new ArrayList<TreatyProposal>();
     for (Agent a : nearbyAgents) {
       if (this.willOfferTreaty(a)) {
         TreatyProposal offer = this.generateTreaty(a);
-        if(this.canOfferTreaty(offer)){
+        if (this.canOfferTreaty(offer)) {
           allTreatyOffers.add(offer);
         }
       }
@@ -145,22 +148,13 @@ class Agent {
     return allTreatyOffers;
   }
 
-  //void offerTreaty(Agent a) {
-  //  TreatyProposal newTreaty = new TreatyProposal(this, a, "BaseTreaty");
-  //  if (random(1) < 0.001 && this.canOfferTreaty(newTreaty)) {
-  //    TreatyResponse newTreatyResponse = a.reviewTreaty(newTreaty);
-  //    if (newTreatyResponse.response) {
-  //      this.activeTreaties.add(newTreaty);
-  //      a.activeTreaties.add(newTreaty);
-  //    }
-  //  }
-  //}
+
   TreatyProposal generateTreaty(Agent a) { // selectively generate treaty based on agent
     return new TreatyProposal(this, a, "BaseTreaty");
   }
 
   boolean willOfferTreaty(Agent a) { // check if treaty will be offered based on trust/behaviour etc
-    return random(1) < 0.001 && a.id > 0;
+    return random(1) < 0.001 && a.getID() > 0;
   }
 
   TreatyResponse reviewTreaty(TreatyProposal treaty) {
@@ -183,6 +177,27 @@ class Agent {
     }
     return true;
   }
+
+  void updateAgentProfile(int agentID, float treatyScore, float aggUpdate) {
+    if (!this.agentProfiles.containsKey(agentID)) {
+      this.agentProfiles.put(agentID, new AgentProfile());
+    }
+    AgentProfile profile = this.agentProfiles.get(agentID);
+    profile.aggression += aggUpdate;
+    profile.treatyScore += treatyScore;
+    println(profile.treatyScore, profile.aggression);
+  }
+
+  void handleTreatyResponse(TreatyResponse tr) { // update profile based on treaty responses
+    int responderID = tr.proposal.treatyTo.getID();
+    if (tr.response) {
+      this.updateAgentProfile(responderID, 10, 0);
+    } else {
+      this.updateAgentProfile(responderID, -1, 0);
+    }
+  }
+
+  // ACTION SESSION //
 
   ActionMessage decideAction(ArrayList<Agent> nearbyAgents) {
 
@@ -222,6 +237,14 @@ class Agent {
     return new AttackMessage(this, actionType.launchAttack, quantity, target);
   }
 
+  void receiveAttackNotif(AttackInfo atk) {
+    int attackerID = atk.attacker.getID();
+    float dmg = atk.damageDealt();
+    this.updateAgentProfile(attackerID, 0, -dmg/10.0);
+  }
+
+
+  // FLOCKING //
 
   ArrayList<Agent> filterAgentsForFlocking(ArrayList<Agent> allAgents) { // override to flock conditionally
     return allAgents;
@@ -240,7 +263,7 @@ class Agent {
     avgPos.div(boids.size());
 
     avgPos.sub(this.pos);
-    
+
     return avgPos.mult(flockData.cohesionFactor / 100);
   }
 

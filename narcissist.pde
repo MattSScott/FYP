@@ -4,23 +4,13 @@ class Narcissist extends Agent {
     this.col = color(255, 0, 0);
   }
 
-  //void offerTreaty(Agent a) {
-  //  TreatyProposal newTreaty = new TreatyProposal(this, a, "NastyTreaty");
-  //  if (random(1) < 0.5 && this.canOfferTreaty(newTreaty)) {
-  //    TreatyResponse newTreatyResponse = a.reviewTreaty(newTreaty);
-  //    if (newTreatyResponse.response) {
-  //      this.activeTreaties.add(newTreaty);
-  //      a.activeTreaties.add(newTreaty);
-  //    }
-  //  }
-  //}
 
   TreatyProposal generateTreaty(Agent a) { // selectively generate treaty based on agent
     return new TreatyProposal(this, a, "NastyTreaty");
   }
 
   boolean willOfferTreaty(Agent a) { // check if treaty will be offered based on trust/behaviour etc
-    return random(1) < 0.05 && a.id > 0;
+    return random(1) < 0.05 && a.getID() > 0;
   }
 
   TreatyResponse reviewTreaty(TreatyProposal treaty) {

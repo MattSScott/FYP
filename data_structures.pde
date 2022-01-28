@@ -1,44 +1,3 @@
-class TreatyProposal {
-  Agent treatyFrom;
-  Agent treatyTo;
-  String treatyType; //Treaty after MVP
-  TreatyProposal(Agent treatyFrom, Agent treatyTo, String treatyType) {
-    this.treatyFrom = treatyFrom;
-    this.treatyTo = treatyTo;
-    this.treatyType = treatyType;
-  }
-  void Print() {
-    println(this.treatyFrom.getID(), this.treatyTo.getID(), this.treatyType);
-  }
-}
-
-class TreatyResponse {
-  TreatyProposal treaty;
-  boolean response;
-  TreatyResponse(TreatyProposal treaty, boolean response) {
-    this.treaty = treaty;
-    this.response = response;
-  }
-}
-
-class Treaty {
-  String treatyName;
-  String description;
-  VariableFieldName[] reqVars;
-  float[] matReqVars;
-
-  Treaty(String tn, String d, VariableFieldName[] rv, float[] mrv) {
-    this.treatyName = tn;
-    this.description = d;
-    this.reqVars = rv;
-    this.matReqVars = mrv;
-  }
-
-  String what() {
-    return this.description;
-  }
-}
-
 class ActionMessage {
   Agent sender;
   float quantity;
@@ -87,5 +46,14 @@ class FlockingData {
     this.alignmentFactor = a;
     this.separationFactor = sf;
     this.separationDistance = sd;
+  }
+}
+
+class AgentProfile {
+  float aggression;
+  float treatyScore;
+  AgentProfile() {
+    this.aggression = 0;
+    this.treatyScore = 0;
   }
 }

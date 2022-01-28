@@ -113,12 +113,14 @@ class Server {
   }
 
   void resolveAttack(AttackInfo atk) {
+    atk.target.receiveAttackNotif(atk);
     float dmg = atk.damageDealt();
     float contrib = atk.resourcesContributed;
+    float newHP =  max(0, (atk.target.getHP() - dmg));
     atk.attacker.offence -= contrib;
     atk.target.defence = max(atk.target.defence - contrib, 0);
-    println("agent " + atk.target.getID() + "'s health has dropped from " + atk.target.getHP() + " to " + max(0, (atk.target.getHP() - dmg)));
-    atk.target.setHP(max(0, atk.target.getHP() - dmg));
+    println("agent " + atk.target.getID() + "'s health has dropped from " + atk.target.getHP() + " to " + newHP);
+    atk.target.setHP(newHP);
   }
 
 
@@ -141,7 +143,9 @@ class Server {
         a.pointsToInvest += 10;
       }
     }
-    this.visualiseTreaties();
+    if (toggleTreaties.getText() == "on") {
+      this.visualiseTreaties();
+    }
   }
 
   ArrayList<Agent> getNearbyAgents(Agent a) {
@@ -159,6 +163,7 @@ class Server {
     for (TreatyProposal proposal : proposals) {
       Agent receiver = proposal.treatyTo;
       TreatyResponse newTreatyResponse = receiver.reviewTreaty(proposal); // make subject of treaty review it
+      a.handleTreatyResponse(newTreatyResponse); // update agent image
       if (newTreatyResponse.response) {
         a.activeTreaties.add(proposal);
         receiver.activeTreaties.add(proposal);
