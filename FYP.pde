@@ -15,14 +15,17 @@ enum actionType {
 
 FlockingData flockData;
 
+Config config;
+
 Server server;
 
 ToggleActionButton toggleActionButton;
 
 void setup() {
-  frameRate(15);
+  frameRate(25);
   size(700, 700);
-  server = new Server(4, 20);
+  config = new Config();
+  server = new Server(config);
   flockData = new FlockingData(1,12.5,30,100); //cohesion, alignment, separation, separation distance
   toggleActionButton = new ToggleActionButton(new PVector(width-40, height-30));
 }

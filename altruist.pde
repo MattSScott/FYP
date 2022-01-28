@@ -21,7 +21,7 @@ class Altruist extends Agent {
   }
 
   boolean willOfferTreaty(Agent a) { // check if treaty will be offered based on trust/behaviour etc
-    return random(1) < 0.05 && a.id > 0;
+    return random(1) < 0.1 && a.id > 0;
     //return true;
   }
 

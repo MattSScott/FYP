@@ -2,17 +2,18 @@ class Server {
   private ArrayList<Agent> totalAgents;
   private ArrayList<Agent> aliveAgents;
   private int agentSize;
-  private int numInitialAgents;
   private int numAliveAgents;
+  private int agentCtr;
+  Config config;
 
-
-  Server(int numInit, int size) {
-    this.numInitialAgents = numInit;
-    this.numAliveAgents = numInit;
-    this.agentSize = size;
+  Server(Config config) {
+    this.config = config;
+    this.agentSize = config.agentSize;
     this.totalAgents = new ArrayList<Agent>();
+    this.aliveAgents = new ArrayList<Agent>();
     this.initialiseAgents();
-    this.aliveAgents = new ArrayList<Agent>(totalAgents);
+    this.numAliveAgents = this.aliveAgents.size();
+    this.agentCtr = 0;
   }
 
 
@@ -20,31 +21,49 @@ class Server {
     return this.aliveAgents;
   }
 
+  void addAgent(agentType motive) {
+    Agent agent;
+    switch(motive) {
+    case ALTRUIST:
+      agent = new Altruist(this.agentCtr+1, random(width), random(height), this.agentSize);
+      break;
+    case NARCISSIST:
+      agent = new Narcissist(this.agentCtr+1, random(width), random(height), this.agentSize);
+      break;
+    default:
+      agent = new Agent(this.agentCtr+1, random(width), random(height), this.agentSize);
+      break;
+    }
+    this.totalAgents.add(agent);
+    this.aliveAgents.add(agent);
+    this.agentCtr++;
+    this.numAliveAgents++;
+  }
+
   void initialiseAgents() {
+
+    for (Map.Entry<agentType, Integer> numMotive : this.config.agents.entrySet()) { // add fixed agent types
+      agentType motive = numMotive.getKey();
+      int count = numMotive.getValue();
+      for (int i=0; i<count; i++) {
+        this.addAgent(motive);
+      }
+    }
+
     agentType[] socialMotives = agentType.values();
-    for (int i=0; i<this.numInitialAgents; i++) {
+    for (int i=0; i<this.config.randomAgents; i++) { // then add random agents
       int socialMotiveIndex = int(random(socialMotives.length));
       agentType motive = socialMotives[socialMotiveIndex];
-      Agent agent;
-      switch(motive) {
-      case ALTRUIST:
-        agent = new Altruist(i+1, random(width), random(height), agentSize);
-        break;
-      case NARCISSIST:
-        agent = new Narcissist(i+1, random(width), random(height), agentSize);
-        break;
-      default:
-        agent = new Agent(i+1, random(width), random(height), agentSize);
-        break;
-      }
-      this.totalAgents.add(agent);
+      this.addAgent(motive);
     }
   }
 
   void filterDeadAgents() {
     for (int i=this.aliveAgents.size() - 1; i>=0; i--) {
-      if (this.aliveAgents.get(i).getHP() == 0) {
+      Agent curr = this.aliveAgents.get(i);
+      if (curr.getHP() == 0) {
         this.aliveAgents.remove(i);
+        println("agent " + curr.getID() + " is dead");
         this.numAliveAgents--;
       }
     }
@@ -113,25 +132,16 @@ class Server {
     }
   }
 
-  void updateInvestmentPointsAndHP() {
-    for (Agent a : this.aliveAgents) {
-      if (a.getHP() == 0) {
-        println("agent " + a.getID() + " is dead");
-      }
-      a.pointsToInvest += 10;
-    }
-    this.filterDeadAgents();
-  }
-
   void runInteractionSession() {
     for (Agent a : this.aliveAgents) {
-      ArrayList<Agent> nearby = this.getNearbyAgents(a);
-      this.runTreatySession(a, nearby);
-      this.runActionSession(a, nearby);
+      if (a.getHP() > 0) { // ensure that agents who die in this turn can't attack before they get removed in the next turn
+        ArrayList<Agent> nearby = this.getNearbyAgents(a);
+        this.runTreatySession(a, nearby);
+        this.runActionSession(a, nearby);
+        a.pointsToInvest += 10;
+      }
     }
     this.visualiseTreaties();
-    this.updateInvestmentPointsAndHP();
-    this.filterExpiredTreaties();
   }
 
   ArrayList<Agent> getNearbyAgents(Agent a) {
@@ -213,16 +223,21 @@ class Server {
       genNeighbourhoods(this.aliveAgents, this.numAliveAgents / 2); // have num clusters = floor(1/2 total agents)
       this.runInteractionSession();
     }
+
+    this.filterDeadAgents();
+    this.filterExpiredTreaties();
     this.showAgents();
+
+    if (frameCount % 100 == 0) {
+      this.addAgent(agentType.NARCISSIST);
+    }
 
     if (this.numAliveAgents == 1) {
       println("Agent " + this.aliveAgents.get(0).getID() + " is victorious!");
-      noLoop();
       println();
       println("SIMULATION END");
       println();
     } else {
-
       println();
       println("NEW TURN");
       println();

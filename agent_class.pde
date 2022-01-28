@@ -240,7 +240,7 @@ class Agent {
     avgPos.div(boids.size());
 
     avgPos.sub(this.pos);
-
+    
     return avgPos.mult(flockData.cohesionFactor / 100);
   }
 
@@ -253,7 +253,7 @@ class Agent {
       }
     }
 
-    avgVel.div(boids.size() - 1);
+    avgVel.div(max(1, boids.size() - 1));
 
     avgVel.sub(this.velocity);
 
