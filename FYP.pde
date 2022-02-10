@@ -24,7 +24,7 @@ ToggleActionButton toggleActionButton;
 ShowTreatiesButton toggleTreaties;
 
 void setup() {
-  frameRate(25);
+  frameRate(5);
   size(700, 700);
   config = new Config();
   server = new Server(config);

@@ -35,7 +35,7 @@ class ToggleActionButton extends Button {
   ToggleActionButton(PVector pos) {
     super(pos);
     this.currentActionCtr = 0;
-    this.words = new String[]{"none", "utility", "offense", "defense"};
+    this.words = new String[]{"none", "utility", "offence", "defense"};
     this.updateText();
   }
 

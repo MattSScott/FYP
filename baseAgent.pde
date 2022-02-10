@@ -110,13 +110,13 @@ class Agent {
 
     switch (s) {
     case "utility":
-      size = map(this.utility, 0, 500, 5, 60);
+      size = map(this.utility, 0, 500, this.baseSize/2, 60);
       break;
     case "offense":
-      size = map(this.offence, 0, 200, 5, 60);
+      size = map(this.offence, 0, 200, this.baseSize/2, 60);
       break;
     case "defence":
-      size = map(this.defence, 0, 200, 5, 60);
+      size = map(this.defence, 0, 200, this.baseSize/2, 60);
       break;
     default:
       size = this.baseSize;
@@ -130,7 +130,7 @@ class Agent {
     ellipse(this.pos.x, this.pos.y, size, size);
     fill(0);
     textAlign(CENTER);
-    text(this.ID, this.pos.x, this.pos.y);
+    text(this.ID, this.pos.x, this.pos.y+5);
   }
 
   // TREATY SESSION //
@@ -185,7 +185,6 @@ class Agent {
     AgentProfile profile = this.agentProfiles.get(agentID);
     profile.aggression += aggUpdate;
     profile.treatyScore += treatyScore;
-    println(profile.treatyScore, profile.aggression);
   }
 
   void handleTreatyResponse(TreatyResponse tr) { // update profile based on treaty responses
