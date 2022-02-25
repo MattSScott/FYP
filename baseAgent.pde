@@ -136,7 +136,7 @@ class Agent {
 
 
     //print(this.age, this.actionCompliesWithTreaties(ActionType.boostUtility));
-    this.actionCompliesWithTreaties(ActionType.boostUtility);
+    //print(this.actionCompliesWithTreaties(ActionType.boostOffence));
   }
 
   // TREATY SESSION //
@@ -412,8 +412,8 @@ class Agent {
   boolean actionCompliesWithTreaties(ActionType action) {
     ArrayList<Treaty> relevant = this.findRelevantTreaties(action);
     for (Treaty t : relevant) {
-      float[] mulMatR = t.treatyInfo.matReqVars;
       float[] mulMatL = this.fetchVarsFromCache(t.treatyInfo.reqVars);
+      float[] mulMatR = t.treatyInfo.matReqVars;
       TreatyOpCode[] aug = t.treatyInfo.auxiliary;
       if (!evalMatrix(mulMatL, mulMatR, aug)) {
         return false;

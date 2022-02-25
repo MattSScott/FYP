@@ -84,12 +84,19 @@ final TreatyInfo[] globalTreatyCache = new TreatyInfo[]{
   ),
 
 
-
-  new TreatyInfo("nastyTreaty",
+  new TreatyInfo("ageBig0Pt1",
   "a not nice treaty",
   new TreatyVariable[]{TreatyVariable.AGE},
   new float[]{1, 0},
-  new TreatyOpCode[]{TreatyOpCode.EQ},
+  new TreatyOpCode[]{TreatyOpCode.GT},
+  new ActionType[]{ActionType.boostOffence}
+  ),
+
+  new TreatyInfo("ageBig0Pt2",
+  "a not nice treaty",
+  new TreatyVariable[]{TreatyVariable.UTILITY},
+  new float[]{1, -600},
+  new TreatyOpCode[]{TreatyOpCode.LT},
   new ActionType[]{ActionType.boostOffence}
   ),
 
