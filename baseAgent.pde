@@ -7,7 +7,7 @@ class Agent {
   boolean alive; // am I alive or dead
   int neighbourhood; // the other agents I'm close enough to interact with
   float minDistanceToNeighbourhood; // closest I am to other lads
-  ArrayList<TreatyProposal> activeTreaties; // what propositions have been made to me so far
+  ArrayList<Treaty> activeTreaties; // what propositions have been made to me so far
   private float speed;
   private PVector velocity; //destination used for smooth agent movement
   private PVector target;
@@ -15,6 +15,7 @@ class Agent {
   float offence;
   float defence;
   float utility;
+  int age;
   HashMap<Integer, AgentProfile> agentProfiles; // map agent id to struct of utility choices and treaty choices
 
   Agent(int id, float x, float y, float size) {
@@ -24,7 +25,7 @@ class Agent {
     this.col = color(0, 0, 0);
     this.alive = true;
     this.neighbourhood = -1;
-    this.activeTreaties = new ArrayList<TreatyProposal>();
+    this.activeTreaties = new ArrayList<Treaty>();
     this.HP = 100;
     this.speed = random(1, 6);
     //this.speed = 0;
@@ -36,6 +37,7 @@ class Agent {
     this.utility = 0;
     this.pointsToInvest = 50;
     this.agentProfiles = new HashMap<Integer, AgentProfile>();
+    this.age = 0;
   }
 
 
@@ -112,7 +114,7 @@ class Agent {
     case "utility":
       size = map(this.utility, 0, 500, this.baseSize/2, 60);
       break;
-    case "offense":
+    case "offence":
       size = map(this.offence, 0, 200, this.baseSize/2, 60);
       break;
     case "defence":
@@ -135,11 +137,11 @@ class Agent {
 
   // TREATY SESSION //
 
-  ArrayList<TreatyProposal> offerAllTreaties(ArrayList<Agent> nearbyAgents) {
-    ArrayList<TreatyProposal> allTreatyOffers = new ArrayList<TreatyProposal>();
+  ArrayList<Treaty> offerAllTreaties(ArrayList<Agent> nearbyAgents) {
+    ArrayList<Treaty> allTreatyOffers = new ArrayList<Treaty>();
     for (Agent a : nearbyAgents) {
       if (this.willOfferTreaty(a)) {
-        TreatyProposal offer = this.generateTreaty(a);
+        Treaty offer = this.generateTreaty(a);
         if (this.canOfferTreaty(offer)) {
           allTreatyOffers.add(offer);
         }
@@ -149,15 +151,16 @@ class Agent {
   }
 
 
-  TreatyProposal generateTreaty(Agent a) { // selectively generate treaty based on agent
-    return new TreatyProposal(this, a, "BaseTreaty");
+  Treaty generateTreaty(Agent a) { // selectively generate treaty based on agent
+    TreatyInfo t = globalTreatyCache[0];
+    return new Treaty(this, a, t);
   }
 
   boolean willOfferTreaty(Agent a) { // check if treaty will be offered based on trust/behaviour etc
     return random(1) < 0.001 && a.getID() > 0;
   }
 
-  TreatyResponse reviewTreaty(TreatyProposal treaty) {
+  TreatyResponse reviewTreaty(Treaty treaty) {
     TreatyResponse response = new TreatyResponse(treaty, true);
     if (random(1) < 0.5) {
       response = new TreatyResponse(treaty, false);
@@ -165,13 +168,28 @@ class Agent {
     return response;
   }
 
-  boolean isDuplicateTreaty(TreatyProposal t1, TreatyProposal t2) {
-    return (t1.treatyTo == t2.treatyTo && t1.treatyFrom == t2.treatyFrom) || (t1.treatyTo == t2.treatyFrom && t1.treatyFrom == t2.treatyTo) && t1.treatyType == t2.treatyType; // a treaty of (1,0,X) = (0,1,X)
+  boolean isDuplicateTreaty(Treaty t1, Treaty t2) {
+    return (t1.treatyTo == t2.treatyTo && t1.treatyFrom == t2.treatyFrom) || (t1.treatyTo == t2.treatyFrom && t1.treatyFrom == t2.treatyTo) && t1.treatyInfo.treatyName == t2.treatyInfo.treatyName; // a treaty of (1,0,X) = (0,1,X)
   }
 
-  boolean canOfferTreaty(TreatyProposal thisTreaty) {
-    for (TreatyProposal otherTreaty : thisTreaty.treatyTo.activeTreaties) { //check what I'm proposing against the existing treaties that the other agent has
-      if (this.isDuplicateTreaty(thisTreaty, otherTreaty)) {
+  //boolean canOfferTreaty(Treaty thisTreaty) {
+  //  for (Treaty otherTreaty : thisTreaty.treatyTo.activeTreaties) { //check what I'm proposing against the existing treaties that the other agent has
+  //    if (this.isDuplicateTreaty(thisTreaty, otherTreaty)) {
+  //      return false;
+  //    }
+  //  }
+  //  return true;
+  //}
+
+  boolean canOfferTreaty(Treaty t) {
+    //for (Treaty otherTreaty : thisTreaty.treatyTo.activeTreaties) { //check what I'm proposing against the existing treaties that the other agent has
+    //  if (this.isDuplicateTreaty(thisTreaty, otherTreaty)) {
+    //    return false;
+    //  }
+    //}
+    //return true;
+    for (Treaty other : this.activeTreaties) {
+      if (this.isDuplicateTreaty(t, other)) {
         return false;
       }
     }
@@ -218,22 +236,22 @@ class Agent {
 
   ActionMessage stockpileOffence() {
     float quantity = random(this.pointsToInvest);
-    return new ActionMessage(this, actionType.boostOffence, quantity);
+    return new ActionMessage(this, ActionType.boostOffence, quantity);
   }
 
   ActionMessage stockpileDefence() {
     float quantity = random(this.pointsToInvest);
-    return new ActionMessage(this, actionType.boostDefence, quantity);
+    return new ActionMessage(this, ActionType.boostDefence, quantity);
   }
 
   ActionMessage stockpileUtility() {
     float quantity = random(this.pointsToInvest);
-    return new ActionMessage(this, actionType.boostUtility, quantity);
+    return new ActionMessage(this, ActionType.boostUtility, quantity);
   }
 
   ActionMessage declareAttack(Agent target) {
     float quantity = random(this.offence);
-    return new AttackMessage(this, actionType.launchAttack, quantity, target);
+    return new AttackMessage(this, ActionType.launchAttack, quantity, target);
   }
 
   void receiveAttackNotif(AttackInfo atk) {
@@ -303,5 +321,100 @@ class Agent {
     PVector s = this.calcFlockSeparation(boids);
 
     return c.add(a).add(s);
+  }
+
+  // TREATIES //
+
+  //retrieve all treaty parameters when evaluating actions for treaties
+  HashMap<TreatyVariable, Float> fetchTreatyVariableCache() {
+    HashMap<TreatyVariable, Float> varCache = new HashMap<TreatyVariable, Float>();
+    varCache.put(TreatyVariable.AGE, float(this.age));
+    varCache.put(TreatyVariable.OFFENCE, this.offence);
+    varCache.put(TreatyVariable.DEFENCE, this.defence);
+    varCache.put(TreatyVariable.UTILITY, this.utility);
+    varCache.put(TreatyVariable.NEIGHBOURHOOD, float(this.neighbourhood));
+    return varCache;
+  }
+
+  ArrayList<Treaty> findRelevantTreaties(ActionType action) {
+    ArrayList<Treaty> relevant = new ArrayList<Treaty>();
+    for (Treaty contract : this.activeTreaties) {
+      TreatyInfo T = contract.treatyInfo;
+      for (ActionType a : T.treatyCategory) {
+        if (a == action) {
+          relevant.add(contract);
+          break;
+        }
+      }
+    }
+    return relevant;
+  }
+
+  float[] fetchVarsFromCache(TreatyVariable[] reqVars) {
+    float[] output = new float[reqVars.length+1];
+    HashMap<TreatyVariable, Float> cache = fetchTreatyVariableCache();
+    for (int i=0; i<reqVars.length; i++) {
+      TreatyVariable v = reqVars[i];
+      output[i] = cache.get(v);
+    }
+    output[reqVars.length] = 1;
+    return output;
+  }
+
+
+  boolean evalMatrix(float[] L, float[] R, TreatyOpCode[] Aug) {
+    float sum = 0;
+    try {
+      if (R.length % L.length != 0) {
+        throw new Exception("Treaty Matrix Dimensions Disagree");
+      }
+      for (int i=0; i<R.length; i++) {
+        int j = i % L.length;
+        sum += L[j] * R[i];
+        if ((i+1) % L.length == 0 && i != 0) {
+          int augInd = floor(i / L.length);
+          if (!opToBool(sum, Aug[augInd])) {
+            return false;
+          } else {
+            sum = 0;
+          }
+        }
+      }
+      return true;
+    }
+    catch(Exception e) {
+      println(e);
+      return false;
+    }
+  }
+
+  boolean opToBool(float n, TreatyOpCode o) {
+    switch(o) {
+    case EQ:
+      return n == 0;
+    case NEQ:
+      return n != 0;
+    case LT:
+      return n < 0;
+    case GT:
+      return n > 0;
+    case LEQ:
+      return n <= 0;
+    default:
+      return n >= 0;
+    }
+  }
+
+  boolean actionCompliesWithTreaties(ActionType action) {
+    ArrayList<Treaty> relevant = this.findRelevantTreaties(action);
+    for (Treaty t : relevant) {
+      float[] mulMatL = this.fetchVarsFromCache(t.treatyInfo.reqVars);
+      float[] mulMatR = t.treatyInfo.matReqVars;
+      TreatyOpCode[] aug = t.treatyInfo.auxiliary;
+      if (!evalMatrix(mulMatL, mulMatR, aug)) {
+        return false;
+      }
+    }
+    return true;
   }
 }

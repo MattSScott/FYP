@@ -21,7 +21,7 @@ class Server {
     return this.aliveAgents;
   }
 
-  void addAgent(agentType motive) {
+  void addAgent(AgentType motive) {
     Agent agent;
     switch(motive) {
     case ALTRUIST:
@@ -42,18 +42,18 @@ class Server {
 
   void initialiseAgents() {
 
-    for (Map.Entry<agentType, Integer> numMotive : this.config.agents.entrySet()) { // add fixed agent types
-      agentType motive = numMotive.getKey();
+    for (Map.Entry<AgentType, Integer> numMotive : this.config.agents.entrySet()) { // add fixed agent types
+      AgentType motive = numMotive.getKey();
       int count = numMotive.getValue();
       for (int i=0; i<count; i++) {
         this.addAgent(motive);
       }
     }
 
-    agentType[] socialMotives = agentType.values();
+    AgentType[] socialMotives = AgentType.values();
     for (int i=0; i<this.config.randomAgents; i++) { // then add random agents
       int socialMotiveIndex = int(random(socialMotives.length));
-      agentType motive = socialMotives[socialMotiveIndex];
+      AgentType motive = socialMotives[socialMotiveIndex];
       this.addAgent(motive);
     }
   }
@@ -71,9 +71,9 @@ class Server {
 
   void printTreaties() {
     for (Agent a : this.aliveAgents) {
-      ArrayList<TreatyProposal> setOfTreaties = a.activeTreaties;
+      ArrayList<Treaty> setOfTreaties = a.activeTreaties;
       println("AGENT " + a.getID() + " TREATIES:");
-      for (TreatyProposal t : setOfTreaties) {
+      for (Treaty t : setOfTreaties) {
         t.Print();
       }
     }
@@ -81,14 +81,14 @@ class Server {
 
   void visualiseTreaties() {
     for (Agent a : this.aliveAgents) {
-      ArrayList<TreatyProposal> setOfTreaties = a.activeTreaties;
-      for (TreatyProposal t : setOfTreaties) {
+      ArrayList<Treaty> setOfTreaties = a.activeTreaties;
+      for (Treaty t : setOfTreaties) {
         Agent agentFrom = t.treatyFrom;
         if (a != agentFrom) { // AGENT 1 MAKES TREATY (0, 1, NICE), THEN VISUALISES 1,1. THIS AVOIDS THIS BUG
           PVector midpoint = new PVector(0.5*(a.pos.x + agentFrom.pos.x), 0.5*(a.pos.y + agentFrom.pos.y));
           fill(0);
           this.drawLine(agentFrom.pos, a.pos);
-          text(t.treatyType, midpoint.x, midpoint.y);
+          text(t.treatyInfo.treatyName, midpoint.x, midpoint.y);
         }
       }
     }
@@ -125,7 +125,7 @@ class Server {
 
 
   void processAction(ActionMessage msg) {
-    if (msg.type != actionType.launchAttack) {
+    if (msg.type != ActionType.launchAttack) {
       this.updateUtility(msg);
     } else {
       AttackMessage atk = (AttackMessage)msg;
@@ -140,7 +140,7 @@ class Server {
         ArrayList<Agent> nearby = this.getNearbyAgents(a);
         this.runTreatySession(a, nearby);
         this.runActionSession(a, nearby);
-        a.pointsToInvest += 10;
+        //a.pointsToInvest += 10;
       }
     }
     if (toggleTreaties.getText() == "on") {
@@ -159,8 +159,8 @@ class Server {
   }
 
   void runTreatySession(Agent a, ArrayList<Agent> nearbyAgents) {
-    ArrayList<TreatyProposal> proposals = a.offerAllTreaties(nearbyAgents); // receive list of treaty offers for each agent
-    for (TreatyProposal proposal : proposals) {
+    ArrayList<Treaty> proposals = a.offerAllTreaties(nearbyAgents); // receive list of treaty offers for each agent
+    for (Treaty proposal : proposals) {
       Agent receiver = proposal.treatyTo;
       TreatyResponse newTreatyResponse = receiver.reviewTreaty(proposal); // make subject of treaty review it
       a.handleTreatyResponse(newTreatyResponse); // update agent image
@@ -174,7 +174,7 @@ class Server {
   void filterExpiredTreaties() {
     for (Agent a : this.aliveAgents) {
       for (int i=a.activeTreaties.size() - 1; i>=0; i--) {
-        TreatyProposal t = a.activeTreaties.get(i);
+        Treaty t = a.activeTreaties.get(i);
         if (t.treatyFrom.getHP() == 0 || t.treatyTo.getHP() == 0) {
           a.activeTreaties.remove(i);
         }
@@ -222,6 +222,15 @@ class Server {
     }
     this.drawHealthBars();
   }
+  
+  void handleEndOfTurn() {
+    this.filterDeadAgents();
+    this.filterExpiredTreaties();
+    for (Agent a : this.aliveAgents){
+      a.pointsToInvest += 10;
+      a.age++;
+    }
+  }
 
   void run() {
     if (this.numAliveAgents > 1) {
@@ -229,12 +238,12 @@ class Server {
       this.runInteractionSession();
     }
 
-    this.filterDeadAgents();
-    this.filterExpiredTreaties();
+    //this.filterDeadAgents();
+    //this.filterExpiredTreaties();
     this.showAgents();
 
     if (frameCount % 100 == 0) {
-      this.addAgent(agentType.NARCISSIST);
+      this.addAgent(AgentType.NARCISSIST);
     }
 
     if (this.numAliveAgents == 1) {
@@ -243,6 +252,7 @@ class Server {
       println("SIMULATION END");
       println();
     } else {
+      this.handleEndOfTurn();
       println();
       println("NEW TURN");
       println();
