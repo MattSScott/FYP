@@ -5,15 +5,16 @@ class Narcissist extends Agent {
   }
 
 
-  TreatyProposal generateTreaty(Agent a) { // selectively generate treaty based on agent
-    return new TreatyProposal(this, a, "NastyTreaty");
+  Treaty generateTreaty(Agent a) { // selectively generate treaty based on agent
+  TreatyInfo t = globalTreatyCache[2];
+    return new Treaty(this, a, t);
   }
 
   boolean willOfferTreaty(Agent a) { // check if treaty will be offered based on trust/behaviour etc
     return random(1) < 0.05 && a.getID() > 0;
   }
 
-  TreatyResponse reviewTreaty(TreatyProposal treaty) {
+  TreatyResponse reviewTreaty(Treaty treaty) {
     TreatyResponse response = new TreatyResponse(treaty, true);
     if (random(1) < 1) {
       response = new TreatyResponse(treaty, false);

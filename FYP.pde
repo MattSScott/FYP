@@ -1,12 +1,12 @@
 import java.util.Map;
 
-enum agentType {
+enum AgentType {
   ALTRUIST,
     NARCISSIST
 }
 
 
-enum actionType {
+enum ActionType {
   boostOffence,
     boostDefence,
     boostUtility,

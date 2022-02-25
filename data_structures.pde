@@ -1,8 +1,8 @@
 class ActionMessage {
   Agent sender;
   float quantity;
-  actionType type;
-  ActionMessage(Agent sender, actionType type, float quantity) {
+  ActionType type;
+  ActionMessage(Agent sender, ActionType type, float quantity) {
     this.sender = sender;
     this.quantity = quantity;
     this.type = type;
@@ -11,7 +11,7 @@ class ActionMessage {
 
 class AttackMessage extends ActionMessage {
   Agent target;
-  AttackMessage(Agent sender, actionType type, float quantity, Agent target) {
+  AttackMessage(Agent sender, ActionType type, float quantity, Agent target) {
     super(sender, type, quantity);
     this.target = target;
   }

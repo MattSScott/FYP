@@ -1,43 +1,58 @@
-enum VariableFieldName {
-  TREATY_WITH,
-    MUTUAL_FOE,
-    N_DAYS_PEACE,
+enum TreatyVariable {
+  AGE,
+    OFFENCE,
+    DEFENCE,
+    UTILITY,
+    NEIGHBOURHOOD
 };
 
-class TreatyProposal {
+enum TreatyOpCode {
+  EQ,
+    NEQ,
+    LT,
+    GT,
+    LEQ,
+    GEQ
+}
+
+class Treaty {
   Agent treatyFrom;
   Agent treatyTo;
-  String treatyType; //Treaty after MVP
-  TreatyProposal(Agent treatyFrom, Agent treatyTo, String treatyType) {
+  TreatyInfo treatyInfo; //Treaty after MVP
+  Treaty(Agent treatyFrom, Agent treatyTo, TreatyInfo t) {
     this.treatyFrom = treatyFrom;
     this.treatyTo = treatyTo;
-    this.treatyType = treatyType;
+    this.treatyInfo = t;
   }
   void Print() {
-    println(this.treatyFrom.getID(), this.treatyTo.getID(), this.treatyType);
+    println(this.treatyFrom.getID(), this.treatyTo.getID(), this.treatyInfo.treatyName);
   }
 }
 
 class TreatyResponse {
-  TreatyProposal proposal;
+  Treaty proposal;
   boolean response;
-  TreatyResponse(TreatyProposal proposal, boolean response) {
+  TreatyResponse(Treaty proposal, boolean response) {
     this.proposal = proposal;
     this.response = response;
   }
 }
 
-class Treaty {
-  String treatyName;
-  String description;
-  VariableFieldName[] reqVars;
-  float[] matReqVars;
+class TreatyInfo {
+  String treatyName; // name of treaty
+  String description; // description of how treaty works
+  TreatyVariable[] reqVars; // necessary agent parameters to define treaty condition
+  float[] matReqVars; // matrix of multipliers for agent parameters
+  TreatyOpCode[] auxiliary; // op code set
+  ActionType[] treatyCategory; // nature of treaty (e.g. does treaty affect attack/defence)
 
-  Treaty(String tn, String d, VariableFieldName[] rv, float[] mrv) {
+  TreatyInfo(String tn, String d, TreatyVariable[] rv, float[] mrv, TreatyOpCode[] aux, ActionType[] tc) {
     this.treatyName = tn;
     this.description = d;
     this.reqVars = rv;
     this.matReqVars = mrv;
+    this.auxiliary = aux;
+    this.treatyCategory = tc;
   }
 
   String what() {
@@ -45,28 +60,46 @@ class Treaty {
   }
 }
 
+//class TreatyVarCategoryPair {
+//  TreatyVariable tv;
+//  ActionType[] category;
+//  TreatyVarCategoryPair(TreatyVariable tv, ActionType[] category){
+//    this.tv = tv;
+//    this.category = category;
+//  }
+//}
 
-Treaty[] allTreaties = new Treaty[]{
 
-  new Treaty("niceTreaty",
+
+
+//set of treaties that can be proposed
+final TreatyInfo[] globalTreatyCache = new TreatyInfo[]{
+
+  new TreatyInfo("niceTreaty",
   "a nice treaty",
-  new VariableFieldName[]{VariableFieldName.TREATY_WITH},
-  new float[]{1, 0}
+  new TreatyVariable[]{TreatyVariable.AGE},
+  new float[]{1, -1, 1, -3},
+  new TreatyOpCode[]{TreatyOpCode.GT, TreatyOpCode.LT},
+  new ActionType[]{ActionType.boostUtility}
   ),
 
 
 
-  new Treaty("nastyTreaty",
+  new TreatyInfo("nastyTreaty",
   "a not nice treaty",
-  new VariableFieldName[]{VariableFieldName.TREATY_WITH},
-  new float[]{1, 0}
+  new TreatyVariable[]{TreatyVariable.AGE},
+  new float[]{1, 0},
+  new TreatyOpCode[]{TreatyOpCode.EQ},
+  new ActionType[]{ActionType.boostOffence}
   ),
 
 
-  new Treaty("buddyTreaty",
-  "a not nice treaty",
-  new VariableFieldName[]{VariableFieldName.TREATY_WITH, VariableFieldName.MUTUAL_FOE},
-  new float[]{1, 1, 0}
+  new TreatyInfo("buddyTreaty",
+  "a cool treaty",
+  new TreatyVariable[]{TreatyVariable.NEIGHBOURHOOD, TreatyVariable.AGE},
+  new float[]{1, 1, 0},
+  new TreatyOpCode[]{TreatyOpCode.EQ},
+  new ActionType[]{ActionType.boostOffence}
   ),
 
 

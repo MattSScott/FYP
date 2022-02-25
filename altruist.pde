@@ -5,8 +5,9 @@ class Altruist extends Agent {
   }
 
 
-  TreatyProposal generateTreaty(Agent a) { // selectively generate treaty based on agent
-    return new TreatyProposal(this, a, "NiceTreaty");
+  Treaty generateTreaty(Agent a) { // selectively generate treaty based on agent
+  TreatyInfo t = globalTreatyCache[0];
+    return new Treaty(this, a, t);
   }
 
   boolean willOfferTreaty(Agent a) { // check if treaty will be offered based on trust/behaviour etc
@@ -14,7 +15,7 @@ class Altruist extends Agent {
     //return true;
   }
 
-  TreatyResponse reviewTreaty(TreatyProposal treaty) {
+  TreatyResponse reviewTreaty(Treaty treaty) {
     TreatyResponse response = new TreatyResponse(treaty, true);
     if (random(1) < 0) {
       response = new TreatyResponse(treaty, false);
