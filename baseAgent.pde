@@ -133,10 +133,6 @@ class Agent {
     fill(0);
     textAlign(CENTER);
     text(this.ID, this.pos.x, this.pos.y+5);
-
-
-    //print(this.age, this.actionCompliesWithTreaties(ActionType.boostUtility));
-    //print(this.actionCompliesWithTreaties(ActionType.boostOffence));
   }
 
   // TREATY SESSION //

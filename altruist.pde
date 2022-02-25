@@ -6,7 +6,7 @@ class Altruist extends Agent {
 
 
   Treaty generateTreaty(Agent a) { // selectively generate treaty based on agent
-  TreatyInfo t = globalTreatyCache[ceil(random(2))];
+  TreatyInfo t = globalTreatyCache[1];
     return new Treaty(this, a, t);
   }
 
