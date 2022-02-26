@@ -222,11 +222,19 @@ class Server {
     }
     this.drawHealthBars();
   }
-  
+
+  void toggleAgentDialogue() {
+    for (Agent a : this.aliveAgents) {
+      if (dist(mouseX, mouseY, a.pos.x, a.pos.y) <= a.getSize()/2) {
+        a.showDialogueBox = !a.showDialogueBox;
+      }
+    }
+  }
+
   void handleEndOfTurn() {
     this.filterDeadAgents();
     this.filterExpiredTreaties();
-    for (Agent a : this.aliveAgents){
+    for (Agent a : this.aliveAgents) {
       a.pointsToInvest += 10;
       a.age++;
     }

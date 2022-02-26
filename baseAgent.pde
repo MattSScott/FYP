@@ -1,6 +1,7 @@
 class Agent {
   private PVector pos; // where am I on the screen
   private float baseSize;
+  private float currSize;
   protected color col; // goody or baddie
   private int ID; // what's my name
   private float HP; //current HP
@@ -16,12 +17,14 @@ class Agent {
   float defence;
   float utility;
   int age;
+  boolean showDialogueBox;
   HashMap<Integer, AgentProfile> agentProfiles; // map agent id to struct of utility choices and treaty choices
 
   Agent(int id, float x, float y, float size) {
     this.ID = id;
     this.pos = new PVector(x, y);
     this.baseSize = size;
+    this.currSize = size;
     this.col = color(0, 0, 0);
     this.alive = true;
     this.neighbourhood = -1;
@@ -38,6 +41,7 @@ class Agent {
     this.pointsToInvest = 50;
     this.agentProfiles = new HashMap<Integer, AgentProfile>();
     this.age = 0;
+    this.showDialogueBox = false;
   }
 
 
@@ -59,6 +63,10 @@ class Agent {
 
   PVector getVelocity() {
     return this.velocity.copy();
+  }
+  
+  float getSize(){
+    return this.currSize;
   }
 
   void agentConstrain() {
@@ -108,20 +116,25 @@ class Agent {
 
   void drawAgent(String s) {
 
-    float size;
+    //float size;
 
     switch (s) {
     case "utility":
-      size = map(this.utility, 0, 500, this.baseSize/2, 60);
+      this.currSize = map(this.utility, 0, 500, this.baseSize/2, 60);
       break;
     case "offence":
-      size = map(this.offence, 0, 200, this.baseSize/2, 60);
+      this.currSize = map(this.offence, 0, 200, this.baseSize/2, 60);
       break;
     case "defence":
-      size = map(this.defence, 0, 200, this.baseSize/2, 60);
+      this.currSize = map(this.defence, 0, 200, this.baseSize/2, 60);
       break;
     default:
-      size = this.baseSize;
+      this.currSize = this.baseSize;
+    }
+
+
+    if (this.showDialogueBox) {
+      this.drawDialogueBox();
     }
 
     if (this.HP > 0) {
@@ -129,10 +142,32 @@ class Agent {
     } else {
       fill(0);
     }
-    ellipse(this.pos.x, this.pos.y, size, size);
+
+    ellipse(this.pos.x, this.pos.y, this.currSize, this.currSize);
     fill(0);
     textAlign(CENTER);
     text(this.ID, this.pos.x, this.pos.y+5);
+  }
+
+  void drawDialogueBox() {
+    float rectW = 100;
+    float rectH = 55;
+    float topLeftX = this.pos.x - rectW/2 + 5;
+    float topLeftY = this.pos.y - this.currSize - 1.3*rectH;
+
+    // Draw outer text box //
+    rectMode(CENTER);
+    noFill();
+    stroke(0);
+    rect(this.pos.x, this.pos.y - this.currSize - rectH, rectW, rectH);
+
+    // Draw text //
+    textAlign(CORNER);
+    text("Age: " + this.age, topLeftX, topLeftY);
+    text("Attack: " + this.offence, topLeftX, topLeftY+10);
+    text("Defence: " + this.defence, topLeftX, topLeftY+20);
+    text("Utility: " + this.utility, topLeftX, topLeftY+30);
+    text("Treaty Count: " + this.activeTreaties.size(), topLeftX, topLeftY+40);
   }
 
   // TREATY SESSION //

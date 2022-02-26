@@ -24,7 +24,7 @@ ToggleActionButton toggleActionButton;
 ShowTreatiesButton toggleTreaties;
 
 void setup() {
-  frameRate(5);
+  frameRate(15);
   size(700, 700);
   config = new Config();
   server = new Server(config);
@@ -50,4 +50,5 @@ void mousePressed() {
   if(toggleTreaties.overButton()){
     toggleTreaties.count();
   }
+  server.toggleAgentDialogue();
 }
