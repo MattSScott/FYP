@@ -3,7 +3,13 @@ enum TreatyVariable {
     OFFENCE,
     DEFENCE,
     UTILITY,
-    NEIGHBOURHOOD
+    NEIGHBOURHOOD,
+    OFFENCE_INVESTMENT,
+    DEFENCE_INVESTMENT,
+    UTILITY_INVESTMENT,
+    ATTACK_INVESTMENT,
+    ATTACK_LAUNCHED,
+    ATTACK_AGAINST
 };
 
 enum TreatyOpCode {
@@ -44,7 +50,7 @@ class TreatyInfo {
   TreatyVariable[] reqVars; // necessary agent parameters to define treaty condition
   float[] matReqVars; // matrix of multipliers for agent parameters
   TreatyOpCode[] auxiliary; // op code set
-  ActionType[] treatyCategory; // nature of treaty (e.g. does treaty affect attack/defence)
+  ActionType[] treatyCategory; // action(s) that treaty affects
 
   TreatyInfo(String tn, String d, TreatyVariable[] rv, float[] mrv, TreatyOpCode[] aux, ActionType[] tc) {
     this.treatyName = tn;
@@ -70,6 +76,9 @@ class TreatyInfo {
 //}
 
 
+//dependency map:
+
+//actiontype : treatyVar
 
 
 //set of treaties that can be proposed
@@ -94,12 +103,12 @@ final TreatyInfo[] globalTreatyCache = new TreatyInfo[]{
 
 
 
-  new TreatyInfo("buddyTreaty",
+  new TreatyInfo("noAttacknoOffence",
   "a cool treaty",
-  new TreatyVariable[]{TreatyVariable.NEIGHBOURHOOD, TreatyVariable.AGE},
-  new float[]{1, 1, 0},
-  new TreatyOpCode[]{TreatyOpCode.EQ},
-  new ActionType[]{ActionType.boostOffence}
+  new TreatyVariable[]{TreatyVariable.OFFENCE_INVESTMENT, TreatyVariable.ATTACK_LAUNCHED},
+  new float[]{1, 0, -20, 0, 1, -1},
+  new TreatyOpCode[]{TreatyOpCode.LT, TreatyOpCode.EQ},
+  new ActionType[]{ActionType.boostOffence, ActionType.launchAttack}
   ),
 
 

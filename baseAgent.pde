@@ -64,8 +64,8 @@ class Agent {
   PVector getVelocity() {
     return this.velocity.copy();
   }
-  
-  float getSize(){
+
+  float getSize() {
     return this.currSize;
   }
 
@@ -147,6 +147,7 @@ class Agent {
     fill(0);
     textAlign(CENTER);
     text(this.ID, this.pos.x, this.pos.y+5);
+
   }
 
   void drawDialogueBox() {
@@ -361,13 +362,32 @@ class Agent {
   // TREATIES //
 
   //retrieve all treaty parameters when evaluating actions for treaties
-  HashMap<TreatyVariable, Float> fetchTreatyVariableCache() {
+  HashMap<TreatyVariable, Float> fetchTreatyVariableCache(ActionMessage action) {
     HashMap<TreatyVariable, Float> varCache = new HashMap<TreatyVariable, Float>();
     varCache.put(TreatyVariable.AGE, float(this.age));
     varCache.put(TreatyVariable.OFFENCE, this.offence);
     varCache.put(TreatyVariable.DEFENCE, this.defence);
     varCache.put(TreatyVariable.UTILITY, this.utility);
     varCache.put(TreatyVariable.NEIGHBOURHOOD, float(this.neighbourhood));
+    switch (action.type) {
+    case launchAttack:
+      AttackMessage attack = (AttackMessage)action;
+      varCache.put(TreatyVariable.ATTACK_LAUNCHED, 1.0);
+      varCache.put(TreatyVariable.ATTACK_AGAINST, float(attack.target.ID));
+      varCache.put(TreatyVariable.ATTACK_INVESTMENT, attack.quantity);
+      break;
+    case boostOffence:
+      varCache.put(TreatyVariable.OFFENCE_INVESTMENT, action.quantity);
+      break;
+    case boostDefence:
+      varCache.put(TreatyVariable.DEFENCE_INVESTMENT, action.quantity);
+      break;
+    case boostUtility:
+      varCache.put(TreatyVariable.UTILITY_INVESTMENT, action.quantity);
+      break;
+
+    default:
+    }
     return varCache;
   }
 
@@ -385,19 +405,23 @@ class Agent {
     return relevant;
   }
 
-  float[] fetchVarsFromCache(TreatyVariable[] reqVars) {
+  float[] fetchVarsFromCache(TreatyVariable[] reqVars, ActionMessage action) {
     float[] output = new float[reqVars.length+1];
-    HashMap<TreatyVariable, Float> cache = fetchTreatyVariableCache();
+    HashMap<TreatyVariable, Float> cache = fetchTreatyVariableCache(action);
     for (int i=0; i<reqVars.length; i++) {
       TreatyVariable v = reqVars[i];
-      output[i] = cache.get(v);
+      if (cache.containsKey(v)) {
+        output[i] = cache.get(v);
+      } else {
+        output[i] = -1;
+      }
     }
     output[reqVars.length] = 1;
     return output;
   }
 
 
-  boolean evalMatrix(float[] L, float[] R, TreatyOpCode[] Aug) {
+  boolean evalMatrix(float[] L, float[] R, TreatyOpCode[] Aug) {  // multiply required variables with their weightings
     float sum = 0;
     try {
       if (R.length % L.length != 0) {
@@ -405,6 +429,10 @@ class Agent {
       }
       for (int i=0; i<R.length; i++) {
         int j = i % L.length;
+        if (L[j] == -1) {   // variable not found - skip check
+          sum = 0;
+          continue;
+        }
         sum += L[j] * R[i];
         if ((i+1) % L.length == 0 && i != 0) {
           int augInd = floor(i / L.length);
@@ -440,10 +468,10 @@ class Agent {
     }
   }
 
-  boolean actionCompliesWithTreaties(ActionType action) {
-    ArrayList<Treaty> relevant = this.findRelevantTreaties(action);
+  boolean actionCompliesWithTreaties(ActionMessage action) {
+    ArrayList<Treaty> relevant = this.findRelevantTreaties(action.type);
     for (Treaty t : relevant) {
-      float[] mulMatL = this.fetchVarsFromCache(t.treatyInfo.reqVars);
+      float[] mulMatL = this.fetchVarsFromCache(t.treatyInfo.reqVars, action);
       float[] mulMatR = t.treatyInfo.matReqVars;
       TreatyOpCode[] aug = t.treatyInfo.auxiliary;
       if (!evalMatrix(mulMatL, mulMatR, aug)) {
