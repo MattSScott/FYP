@@ -16,6 +16,7 @@ class Agent {
   float offence;
   float defence;
   float utility;
+  private float buyInProb; // how likely am I to not break treaties
   int age;
   boolean showDialogueBox;
   HashMap<Integer, AgentProfile> agentProfiles; // map agent id to struct of utility choices and treaty choices
@@ -42,6 +43,7 @@ class Agent {
     this.agentProfiles = new HashMap<Integer, AgentProfile>();
     this.age = 0;
     this.showDialogueBox = false;
+    this.buyInProb = 1.0;
   }
 
 
@@ -104,7 +106,7 @@ class Agent {
     ArrayList<Agent> boids = this.filterAgentsForFlocking(allAgents);
     this.velocity.add(this.calcFlock(boids)).mult(0.75);
     this.pos.add(this.velocity);
-    //this.agentConstrain();
+    this.agentConstrain();
     //println(this.velocity);
   }
 
@@ -147,7 +149,6 @@ class Agent {
     fill(0);
     textAlign(CENTER);
     text(this.ID, this.pos.x, this.pos.y+5);
-
   }
 
   void drawDialogueBox() {
@@ -250,6 +251,13 @@ class Agent {
     }
   }
 
+  Agent findTreatyWith(Treaty tr) {
+    if (tr.treatyTo != this) {
+      return tr.treatyTo;
+    }
+    return tr.treatyFrom;
+  }
+
   // ACTION SESSION //
 
   ActionMessage decideAction(ArrayList<Agent> nearbyAgents) {
@@ -269,6 +277,17 @@ class Agent {
     return this.declareAttack(nearbyAgents.get(randomTarget));
   }
 
+  ActionMessage decideActionIfInvalid(ActionMessage action) {
+    println("agent " + this.getID() + " tried to perform " + action.type + " but failed. Boosting utility with P=" + this.buyInProb);
+    if (random(1) < this.buyInProb) {
+      return this.stockpileUtility();
+    }
+    return action; // don't trust the system - break the treaty anyway
+  }
+
+  void handleBrokenTreaty(Agent breaker){
+    this.updateAgentProfile(breaker.ID, 0, -10.0);
+  }
 
   ActionMessage stockpileOffence() {
     float quantity = random(this.pointsToInvest);
@@ -430,7 +449,6 @@ class Agent {
       for (int i=0; i<R.length; i++) {
         int j = i % L.length;
         if (L[j] == -1) {   // variable not found - skip check
-          sum = 0;
           continue;
         }
         sum += L[j] * R[i];
@@ -468,16 +486,26 @@ class Agent {
     }
   }
 
-  boolean actionCompliesWithTreaties(ActionMessage action) {
+  ArrayList<Agent> agentsAffectedBrokenTreaty(ActionMessage action) {
     ArrayList<Treaty> relevant = this.findRelevantTreaties(action.type);
+    ArrayList<Agent> affectedIfBroken = new ArrayList<Agent>();
     for (Treaty t : relevant) {
       float[] mulMatL = this.fetchVarsFromCache(t.treatyInfo.reqVars, action);
       float[] mulMatR = t.treatyInfo.matReqVars;
       TreatyOpCode[] aug = t.treatyInfo.auxiliary;
       if (!evalMatrix(mulMatL, mulMatR, aug)) {
-        return false;
+        affectedIfBroken.add(this.findTreatyWith(t));
       }
     }
-    return true;
+    return affectedIfBroken;
+  }
+
+  boolean actionCompliesWithTreaties(ActionMessage action) {
+    ArrayList<Agent> agentsAffected = this.agentsAffectedBrokenTreaty(action);
+
+    if (agentsAffected.size() == 0) {
+      return true;
+    }
+    return false;
   }
 }

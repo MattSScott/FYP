@@ -5,7 +5,7 @@ class Config {
   
   Config() {
     this.agents = new HashMap<AgentType, Integer>();
-    agents.put(AgentType.NARCISSIST, 0);
+    agents.put(AgentType.NARCISSIST, 1);
     agents.put(AgentType.ALTRUIST, 2);
     this.randomAgents = 0;
     this.agentSize = 20;

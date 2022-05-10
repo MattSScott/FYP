@@ -106,7 +106,7 @@ final TreatyInfo[] globalTreatyCache = new TreatyInfo[]{
   new TreatyInfo("noAttacknoOffence",
   "a cool treaty",
   new TreatyVariable[]{TreatyVariable.OFFENCE_INVESTMENT, TreatyVariable.ATTACK_LAUNCHED},
-  new float[]{1, 0, -20, 0, 1, -1},
+  new float[]{1, 0, -20, 0, 1, 0},
   new TreatyOpCode[]{TreatyOpCode.LT, TreatyOpCode.EQ},
   new ActionType[]{ActionType.boostOffence, ActionType.launchAttack}
   ),
