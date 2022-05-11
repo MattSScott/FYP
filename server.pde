@@ -184,22 +184,21 @@ class Server {
 
   void runActionSession(Agent a, ArrayList<Agent> nearbyAgents) {
     ActionMessage action = a.decideAction(nearbyAgents);
-    
+
     ArrayList<Agent> agentsAffected = a.agentsAffectedBrokenTreaty(action);
-    
-    if(agentsAffected.size() != 0){
+
+    if (agentsAffected.size() != 0) {
       action = a.decideActionIfInvalid(action);
+      if (action.type != ActionType.boostUtility) { // treaties broken -> utility. if not then agent doesn't care
+        this.broadcastTreatyBreak(agentsAffected, a);
+      }
     }
-    
-    if(action.type != ActionType.boostUtility){
-      this.broadcastTreatyBreak(agentsAffected, a);
-    }
-    
+
     this.processAction(action);
   }
-  
-  void broadcastTreatyBreak(ArrayList<Agent> affected, Agent breaker){
-    for(Agent a : affected){
+
+  void broadcastTreatyBreak(ArrayList<Agent> affected, Agent breaker) {
+    for (Agent a : affected) {
       a.handleBrokenTreaty(breaker);
     }
   }
