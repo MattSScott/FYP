@@ -1,4 +1,5 @@
 class Agent {
+  protected AgentType type; // what is my social motive
   private PVector pos; // where am I on the screen
   private float baseSize;
   private float currSize;
@@ -24,6 +25,7 @@ class Agent {
   Agent(int id, float x, float y, float size) {
     this.ID = id;
     this.pos = new PVector(x, y);
+    this.type = AgentType.BASE;
     this.baseSize = size;
     this.currSize = size;
     this.col = color(0, 0, 0);
