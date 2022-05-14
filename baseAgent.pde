@@ -235,21 +235,22 @@ class Agent {
     return true;
   }
 
-  void updateAgentProfile(int agentID, float treatyScore, float aggUpdate) {
+  void updateAgentProfile(int agentID, float treatyUpdate, float aggUpdate, float hedUpdate) {
     if (!this.agentProfiles.containsKey(agentID)) {
       this.agentProfiles.put(agentID, new AgentProfile());
     }
     AgentProfile profile = this.agentProfiles.get(agentID);
-    profile.aggression += aggUpdate;
-    profile.treatyScore += treatyScore;
+    profile.aggression = constrain(profile.aggression + aggUpdate, -10, 10);
+    profile.treatyScore = constrain(profile.treatyScore + treatyUpdate, -10, 10);
+    profile.hedonism = constrain(profile.hedonism + hedUpdate, -10, 10);
   }
 
   void handleTreatyResponse(TreatyResponse tr) { // update profile based on treaty responses
     int responderID = tr.proposal.treatyTo.getID();
     if (tr.response) {
-      this.updateAgentProfile(responderID, 10, 0);
+      this.updateAgentProfile(responderID, 1, -1, 1);
     } else {
-      this.updateAgentProfile(responderID, -1, 0);
+      this.updateAgentProfile(responderID, -1, 0, 0);
     }
   }
 
@@ -288,7 +289,8 @@ class Agent {
   }
 
   void handleBrokenTreaty(Agent breaker) {
-    this.updateAgentProfile(breaker.ID, 0, -10.0);
+    this.updateAgentProfile(breaker.ID, -2, 3, 0);
+    this.buyInProb = max(this.buyInProb - 0.05, 0);
   }
 
   ActionMessage stockpileOffence() {
@@ -314,7 +316,7 @@ class Agent {
   void receiveAttackNotif(AttackInfo atk) {
     int attackerID = atk.attacker.getID();
     float dmg = atk.damageDealt();
-    this.updateAgentProfile(attackerID, 0, -dmg/10.0);
+    this.updateAgentProfile(attackerID, 0, dmg/10.0, 0);
   }
 
 
@@ -515,8 +517,43 @@ class Agent {
   }
 
 
-  int[] formStrategyProfile(Agent opponent) {
-    StrategyProfiler profile = new StrategyProfiler(this.type, opponent.utility, opponent.offence, this.defence);
-    return profile.genStrategy();
+  ActionType compileFinalStrategy(Agent opponent) {
+
+    AgentProfile oppData = this.agentProfiles.get(opponent.getID());
+
+    StrategyProfiler profilePlayer = new StrategyProfiler(this.type, opponent.utility, opponent.offence, this.defence);
+    StrategyProfiler profileOpponent = new StrategyProfiler(oppData.profileToMotive(), this.utility, this.offence, opponent.defence);
+
+    int[] playerStrat = profilePlayer.genStrategy();
+    int[] opponentStrat = profileOpponent.genStrategy();
+
+    int idealQuadrant = this.aggregateStrats(playerStrat, opponentStrat);
+
+    if (idealQuadrant < 2) {
+      return ActionType.launchAttack;
+    }
+    return ActionType.boostDefence;
+  }
+
+  int aggregateStrats(int[] p1Strat, int[] p2Strat) {
+    // using Borda count
+    int[] bordaVotes = new int[4];
+
+    for (int i=0; i<4; i++) {
+      int votep1 = p1Strat[i];
+      int votep2 = p2Strat[i];
+
+      bordaVotes[votep1] += 4-i;
+      bordaVotes[votep2] += 4-i;
+    }
+
+    int maxVote = max(bordaVotes);
+
+    for (int i=0; i<4; i++) {
+      if (bordaVotes[i] == maxVote) {
+        return i;
+      }
+    }
+    return 0;
   }
 }

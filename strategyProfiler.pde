@@ -101,7 +101,7 @@ class StrategyProfiler {
       return scoresToPreferenceOrder(reformedPayoff, false);
 
     default:
-      return new int[]{1, 2, 3, 4};
+      return new int[]{0, 1, 2, 3};
     }
   }
 }

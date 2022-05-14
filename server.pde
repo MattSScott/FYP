@@ -181,6 +181,7 @@ class Server {
       }
     }
   }
+  
 
   void runActionSession(Agent a, ArrayList<Agent> nearbyAgents) {
     ActionMessage action = a.decideAction(nearbyAgents);
@@ -189,7 +190,7 @@ class Server {
 
     if (agentsAffected.size() != 0) {
       action = a.decideActionIfInvalid(action);
-      if (action.type != ActionType.boostUtility) { // treaties broken -> utility. if not then agent doesn't care
+      if (action.type != ActionType.boostUtility) { // treaties broken -> utility necessary
         this.broadcastTreatyBreak(agentsAffected, a);
       }
     }
