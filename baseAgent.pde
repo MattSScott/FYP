@@ -517,7 +517,7 @@ class Agent {
   }
 
 
-  ActionType compileFinalStrategy(Agent opponent) {
+  ActionType compileHawkDoveStrategy(Agent opponent) {
 
     AgentProfile oppData = this.agentProfiles.get(opponent.getID());
 
