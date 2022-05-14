@@ -287,7 +287,7 @@ class Agent {
     return action; // don't trust the system - break the treaty anyway
   }
 
-  void handleBrokenTreaty(Agent breaker){
+  void handleBrokenTreaty(Agent breaker) {
     this.updateAgentProfile(breaker.ID, 0, -10.0);
   }
 
@@ -488,6 +488,9 @@ class Agent {
     }
   }
 
+
+  // STRATEGY
+
   ArrayList<Agent> agentsAffectedBrokenTreaty(ActionMessage action) {
     ArrayList<Treaty> relevant = this.findRelevantTreaties(action.type);
     ArrayList<Agent> affectedIfBroken = new ArrayList<Agent>();
@@ -509,5 +512,11 @@ class Agent {
       return true;
     }
     return false;
+  }
+
+
+  int[] formStrategyProfile(Agent opponent) {
+    StrategyProfiler profile = new StrategyProfiler(this.type, opponent.utility, opponent.offence, this.defence);
+    return profile.genStrategy();
   }
 }
