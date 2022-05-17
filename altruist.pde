@@ -1,12 +1,13 @@
 class Altruist extends Agent {
   Altruist(int id, float x, float y, float size) {
     super(id, x, y, size);
+    this.type = AgentType.ALTRUIST;
     this.col = color(0, 255, 0);
   }
 
 
   Treaty generateTreaty(Agent a) { // selectively generate treaty based on agent
-  TreatyInfo t = globalTreatyCache[2];
+    TreatyInfo t = globalTreatyCache[2];
     return new Treaty(this, a, t);
   }
 

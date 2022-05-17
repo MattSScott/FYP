@@ -1,12 +1,13 @@
 class Narcissist extends Agent {
   Narcissist(int id, float x, float y, float size) {
     super(id, x, y, size);
+    this.type = AgentType.NARCISSIST;
     this.col = color(255, 0, 0);
   }
 
 
   Treaty generateTreaty(Agent a) { // selectively generate treaty based on agent
-  TreatyInfo t = globalTreatyCache[2];
+    TreatyInfo t = globalTreatyCache[2];
     return new Treaty(this, a, t);
   }
 

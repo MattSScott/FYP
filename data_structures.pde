@@ -52,8 +52,41 @@ class FlockingData {
 class AgentProfile {
   float aggression;
   float treatyScore;
+  float hedonism;
   AgentProfile() {
     this.aggression = 0;
     this.treatyScore = 0;
+    this.hedonism = 0;
+  }
+
+  AgentType profileToMotive() {
+
+    AgentType[] allMotives = new AgentType[]{
+      AgentType.EQUITABLE, AgentType.NARCISSIST,
+      AgentType.MARTYR, AgentType.COOPERATIVE,
+      AgentType.COMPETITIVE, AgentType.AGGRESSIVE,
+      AgentType.INDIVIDUAL, AgentType.ALTRUIST
+    };
+
+    int quadrant;
+    float x = this.treatyScore;
+    float y = this.aggression;
+    float z = this.hedonism;
+
+    if (x >= 0 && y >= 0) {
+      quadrant = 0;
+    } else if (x < 0 && y >= 0) {
+      quadrant = 1;
+    } else if (x < 0 && y < 0) {
+      quadrant = 2;
+    } else {
+      quadrant = 3;
+    }
+
+    if (z >= 0) {
+      quadrant += 4;
+    }
+
+    return allMotives[quadrant];
   }
 }

@@ -1,4 +1,5 @@
 class Agent {
+  protected AgentType type; // what is my social motive
   private PVector pos; // where am I on the screen
   private float baseSize;
   private float currSize;
@@ -24,6 +25,7 @@ class Agent {
   Agent(int id, float x, float y, float size) {
     this.ID = id;
     this.pos = new PVector(x, y);
+    this.type = AgentType.BASE;
     this.baseSize = size;
     this.currSize = size;
     this.col = color(0, 0, 0);
@@ -43,7 +45,7 @@ class Agent {
     this.agentProfiles = new HashMap<Integer, AgentProfile>();
     this.age = 0;
     this.showDialogueBox = false;
-    this.buyInProb = 1.0;
+    this.buyInProb = 0.95;
   }
 
 
@@ -209,22 +211,8 @@ class Agent {
     return (t1.treatyTo == t2.treatyTo && t1.treatyFrom == t2.treatyFrom) || (t1.treatyTo == t2.treatyFrom && t1.treatyFrom == t2.treatyTo) && t1.treatyInfo.treatyName == t2.treatyInfo.treatyName; // a treaty of (1,0,X) = (0,1,X)
   }
 
-  //boolean canOfferTreaty(Treaty thisTreaty) {
-  //  for (Treaty otherTreaty : thisTreaty.treatyTo.activeTreaties) { //check what I'm proposing against the existing treaties that the other agent has
-  //    if (this.isDuplicateTreaty(thisTreaty, otherTreaty)) {
-  //      return false;
-  //    }
-  //  }
-  //  return true;
-  //}
 
   boolean canOfferTreaty(Treaty t) {
-    //for (Treaty otherTreaty : thisTreaty.treatyTo.activeTreaties) { //check what I'm proposing against the existing treaties that the other agent has
-    //  if (this.isDuplicateTreaty(thisTreaty, otherTreaty)) {
-    //    return false;
-    //  }
-    //}
-    //return true;
     for (Treaty other : this.activeTreaties) {
       if (this.isDuplicateTreaty(t, other)) {
         return false;
@@ -233,21 +221,22 @@ class Agent {
     return true;
   }
 
-  void updateAgentProfile(int agentID, float treatyScore, float aggUpdate) {
+  void updateAgentProfile(int agentID, float treatyUpdate, float aggUpdate, float hedUpdate) {
     if (!this.agentProfiles.containsKey(agentID)) {
       this.agentProfiles.put(agentID, new AgentProfile());
     }
     AgentProfile profile = this.agentProfiles.get(agentID);
-    profile.aggression += aggUpdate;
-    profile.treatyScore += treatyScore;
+    profile.aggression = constrain(profile.aggression + aggUpdate, -10, 10);
+    profile.treatyScore = constrain(profile.treatyScore + treatyUpdate, -10, 10);
+    profile.hedonism = constrain(profile.hedonism + hedUpdate, -10, 10);
   }
 
   void handleTreatyResponse(TreatyResponse tr) { // update profile based on treaty responses
     int responderID = tr.proposal.treatyTo.getID();
     if (tr.response) {
-      this.updateAgentProfile(responderID, 10, 0);
+      this.updateAgentProfile(responderID, 1, -1, 1);
     } else {
-      this.updateAgentProfile(responderID, -1, 0);
+      this.updateAgentProfile(responderID, -1, 0, 0);
     }
   }
 
@@ -285,8 +274,19 @@ class Agent {
     return action; // don't trust the system - break the treaty anyway
   }
 
-  void handleBrokenTreaty(Agent breaker){
-    this.updateAgentProfile(breaker.ID, 0, -10.0);
+  boolean handleBrokenTreaty(Treaty t) { // update Agent profile and decide if cancelling treaty
+    Agent breaker = this.findTreatyWith(t);
+    boolean willCancelTreaty = false;
+
+    this.updateAgentProfile(breaker.ID, -2, 3, 0);
+
+    if (random(1) > this.buyInProb) {
+      willCancelTreaty = true;
+      println("agent " + this.ID + " ended " + t.treatyInfo.treatyName + " with agent " + breaker.getID());
+    }
+
+    this.buyInProb = max(this.buyInProb - 0.05, 0);
+    return willCancelTreaty;
   }
 
   ActionMessage stockpileOffence() {
@@ -312,7 +312,7 @@ class Agent {
   void receiveAttackNotif(AttackInfo atk) {
     int attackerID = atk.attacker.getID();
     float dmg = atk.damageDealt();
-    this.updateAgentProfile(attackerID, 0, -dmg/10.0);
+    this.updateAgentProfile(attackerID, 0, dmg/10.0, 0);
   }
 
 
@@ -486,26 +486,70 @@ class Agent {
     }
   }
 
-  ArrayList<Agent> agentsAffectedBrokenTreaty(ActionMessage action) {
+
+  // STRATEGY
+
+  ArrayList<Treaty> treatiesBroken(ActionMessage action) {
     ArrayList<Treaty> relevant = this.findRelevantTreaties(action.type);
-    ArrayList<Agent> affectedIfBroken = new ArrayList<Agent>();
+    ArrayList<Treaty> affectedIfBroken = new ArrayList<Treaty>();
     for (Treaty t : relevant) {
       float[] mulMatL = this.fetchVarsFromCache(t.treatyInfo.reqVars, action);
       float[] mulMatR = t.treatyInfo.matReqVars;
       TreatyOpCode[] aug = t.treatyInfo.auxiliary;
       if (!evalMatrix(mulMatL, mulMatR, aug)) {
-        affectedIfBroken.add(this.findTreatyWith(t));
+        affectedIfBroken.add(t);
       }
     }
     return affectedIfBroken;
   }
 
   boolean actionCompliesWithTreaties(ActionMessage action) {
-    ArrayList<Agent> agentsAffected = this.agentsAffectedBrokenTreaty(action);
+    ArrayList<Treaty> affected = this.treatiesBroken(action);
 
-    if (agentsAffected.size() == 0) {
+    if (affected.size() == 0) {
       return true;
     }
     return false;
+  }
+
+
+  ActionType compileHawkDoveStrategy(Agent opponent) {
+
+    AgentProfile oppData = this.agentProfiles.get(opponent.getID());
+
+    StrategyProfiler profilePlayer = new StrategyProfiler(this.type, opponent.utility, opponent.offence, this.defence);
+    StrategyProfiler profileOpponent = new StrategyProfiler(oppData.profileToMotive(), this.utility, this.offence, opponent.defence);
+
+    int[] playerStrat = profilePlayer.genStrategy();
+    int[] opponentStrat = profileOpponent.genStrategy();
+
+    int idealQuadrant = this.aggregateStrats(playerStrat, opponentStrat);
+
+    if (idealQuadrant < 2) {
+      return ActionType.launchAttack;
+    }
+    return ActionType.boostDefence;
+  }
+
+  int aggregateStrats(int[] p1Strat, int[] p2Strat) {
+    // using Borda count
+    int[] bordaVotes = new int[]{0, 0, 0, 0};
+
+    for (int i=0; i<4; i++) {
+      int votep1 = p1Strat[i];
+      int votep2 = p2Strat[i];
+
+      bordaVotes[votep1] += 4-i;
+      bordaVotes[votep2] += 4-i;
+    }
+
+    int maxVote = max(bordaVotes);
+
+    for (int i=0; i<4; i++) {
+      if (bordaVotes[i] == maxVote) {
+        return i;
+      }
+    }
+    return 0;
   }
 }

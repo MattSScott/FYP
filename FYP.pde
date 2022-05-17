@@ -1,8 +1,15 @@
 import java.util.Map;
 
 enum AgentType {
-  ALTRUIST,
-    NARCISSIST
+  BASE,
+    ALTRUIST,
+    NARCISSIST,
+    COMPETITIVE,
+    AGGRESSIVE,
+    INDIVIDUAL,
+    MARTYR,
+    EQUITABLE,
+    COOPERATIVE
 }
 
 
@@ -28,26 +35,26 @@ void setup() {
   size(700, 700);
   config = new Config();
   server = new Server(config);
-  flockData = new FlockingData(1,12.5,30,100); //cohesion, alignment, separation, separation distance
+  flockData = new FlockingData(1, 12.5, 30, 100); //cohesion, alignment, separation, separation distance
   toggleActionButton = new ToggleActionButton(new PVector(width-40, height-30));
   toggleTreaties = new ShowTreatiesButton(new PVector(width-40, height-80));
 }
 
 void draw() {
   background(255);
-  
+
   toggleActionButton.show();
-  
+
   toggleTreaties.show();
-  
+
   server.run();
 }
 
 void mousePressed() {
-  if(toggleActionButton.overButton()){
+  if (toggleActionButton.overButton()) {
     toggleActionButton.count();
   }
-  if(toggleTreaties.overButton()){
+  if (toggleTreaties.overButton()) {
     toggleTreaties.count();
   }
   server.toggleAgentDialogue();

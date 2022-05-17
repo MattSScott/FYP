@@ -181,25 +181,31 @@ class Server {
       }
     }
   }
+  
 
   void runActionSession(Agent a, ArrayList<Agent> nearbyAgents) {
     ActionMessage action = a.decideAction(nearbyAgents);
 
-    ArrayList<Agent> agentsAffected = a.agentsAffectedBrokenTreaty(action);
+    ArrayList<Treaty> treatiesAffected = a.treatiesBroken(action);
 
-    if (agentsAffected.size() != 0) {
+    if (treatiesAffected.size() != 0) {
       action = a.decideActionIfInvalid(action);
-      if (action.type != ActionType.boostUtility) { // treaties broken -> utility. if not then agent doesn't care
-        this.broadcastTreatyBreak(agentsAffected, a);
+      if (action.type != ActionType.boostUtility) { // treaties broken -> utility necessary
+        this.broadcastTreatyBreak(treatiesAffected, a);
       }
     }
 
     this.processAction(action);
   }
 
-  void broadcastTreatyBreak(ArrayList<Agent> affected, Agent breaker) {
-    for (Agent a : affected) {
-      a.handleBrokenTreaty(breaker);
+  void broadcastTreatyBreak(ArrayList<Treaty> treaties, Agent breaker) {
+    for (Treaty t : treaties) {
+      Agent affected = breaker.findTreatyWith(t);
+      boolean result = affected.handleBrokenTreaty(t);
+      if (result) {
+        breaker.activeTreaties.remove(t);
+        affected.activeTreaties.remove(t);
+      }
     }
   }
 
@@ -251,7 +257,7 @@ class Server {
     this.filterDeadAgents();
     this.filterExpiredTreaties();
     for (Agent a : this.aliveAgents) {
-      a.pointsToInvest += 10;
+      a.pointsToInvest += config.investmentPerTurn;
       a.age++;
     }
   }

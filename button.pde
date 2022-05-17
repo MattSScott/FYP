@@ -9,8 +9,8 @@ class Button {
     this.h = 20;
     this.text = "";
   }
-  
-    void show() {
+
+  void show() {
     fill(200);
     rectMode(CENTER);
     rect(this.pos.x, this.pos.y, w, h);
@@ -26,7 +26,6 @@ class Button {
 
     return mouseX > xMin && mouseX < xMax && mouseY > yMin && mouseY < yMax;
   }
-  
 }
 
 class ToggleActionButton extends Button {
@@ -55,7 +54,7 @@ class ToggleActionButton extends Button {
 }
 
 class ShowTreatiesButton extends ToggleActionButton {
-  ShowTreatiesButton(PVector pos){
+  ShowTreatiesButton(PVector pos) {
     super(pos);
     this.words = new String[]{"on", "off"};
     this.updateText();
