@@ -22,7 +22,7 @@ class StrategyProfiler {
     float[][] augScores = new float[4][2];
 
     for (int i=0; i<4; i++) {
-      augScores[i] = new float[]{scores[i], i};
+      augScores[i] = new float[]{scores[i], i}; // retain index/quadrant
     }
 
     for (int i = 0; i < 3; i++) { // easy bubble sort to preserve index
@@ -56,49 +56,49 @@ class StrategyProfiler {
       for (int i=0; i<4; i++) {
         reformedPayoff[i] = this.payoffs[i][1];
       }
-      return scoresToPreferenceOrder(reformedPayoff, true);
+      return this.scoresToPreferenceOrder(reformedPayoff, true);
 
     case AGGRESSIVE : // minimise opp. payoff
       for (int i=0; i<4; i++) {
         reformedPayoff[i] = this.payoffs[i][1];
       }
-      return scoresToPreferenceOrder(reformedPayoff, false);
+      return this.scoresToPreferenceOrder(reformedPayoff, false);
 
     case COMPETITIVE : // maximise payoff diff
       for (int i=0; i<4; i++) {
         reformedPayoff[i] = abs(this.payoffs[i][0] - this.payoffs[i][1]);
       }
-      return scoresToPreferenceOrder(reformedPayoff, true);
+      return this.scoresToPreferenceOrder(reformedPayoff, true);
 
     case EQUITABLE : // minimise payoff diff
       for (int i=0; i<4; i++) {
         reformedPayoff[i] = abs(this.payoffs[i][0] - this.payoffs[i][1]);
       }
-      return scoresToPreferenceOrder(reformedPayoff, false);
+      return this.scoresToPreferenceOrder(reformedPayoff, false);
 
     case COOPERATIVE : // maximise payoff sum
       for (int i=0; i<4; i++) {
         reformedPayoff[i] = this.payoffs[i][0] + this.payoffs[i][1];
       }
-      return scoresToPreferenceOrder(reformedPayoff, true);
+      return this.scoresToPreferenceOrder(reformedPayoff, true);
 
     case NARCISSIST : // minimise payoff sum
       for (int i=0; i<4; i++) {
         reformedPayoff[i] = this.payoffs[i][0] + this.payoffs[i][1];
       }
-      return scoresToPreferenceOrder(reformedPayoff, false);
+      return this.scoresToPreferenceOrder(reformedPayoff, false);
 
     case INDIVIDUAL : // maximise player payoff
       for (int i=0; i<4; i++) {
         reformedPayoff[i] = this.payoffs[i][0];
       }
-      return scoresToPreferenceOrder(reformedPayoff, true);
+      return this.scoresToPreferenceOrder(reformedPayoff, true);
 
     case MARTYR : // minimise player payoff
       for (int i=0; i<4; i++) {
         reformedPayoff[i] = this.payoffs[i][0];
       }
-      return scoresToPreferenceOrder(reformedPayoff, false);
+      return this.scoresToPreferenceOrder(reformedPayoff, false);
 
     default:
       return new int[]{0, 1, 2, 3};
