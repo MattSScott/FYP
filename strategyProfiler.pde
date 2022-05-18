@@ -18,16 +18,16 @@ class StrategyProfiler {
     return new float[][]{ {mutualAgg, -mutualAgg}, {this.value, 0}, {0, this.value}, {mutualDef, mutualDef} };
   }
 
-  int[] scoresToPreferenceOrder(float[] scores, boolean maximise) {
+  int[] scoresToPreferenceOrder(float[] scores) {
     float[][] augScores = new float[4][2];
 
     for (int i=0; i<4; i++) {
-      augScores[i] = new float[]{scores[i], i}; // retain index/quadrant
+      augScores[i] = new float[]{scores[i], i}; // retain index==quadrant
     }
 
     for (int i = 0; i < 3; i++) { // easy bubble sort to preserve index
       for (int j = 0; j < 3 - i; j++) {
-        if (augScores[j][0] > augScores[j+1][0]) {
+        if (augScores[j][0] < augScores[j+1][0]) {
           float[] tmp = augScores[j];
           augScores[j] = augScores[j+1];
           augScores[j+1] = tmp;
@@ -41,14 +41,28 @@ class StrategyProfiler {
       prefOrder[i] = int(augScores[i][1]);
     }
 
-    if (maximise) {
-      return reverse(prefOrder);
-    }
     return prefOrder;
   }
 
+  float mixedStrategyProb() {
+    float[] augPayoffs = this.genExpectedPayoffs();
 
-  int[] genStrategy() {
+    float A = augPayoffs[0];
+    float B = augPayoffs[1];
+    float C = augPayoffs[2];
+    float D = augPayoffs[3];
+    
+    float num = D - C;
+    float den1 = A + D;
+    float den2 = C + B;
+    
+    float den = den1 - den2;
+    
+    return num / den;
+  }
+
+
+  float[] genExpectedPayoffs() {
     float[] reformedPayoff = new float[4];
 
     switch(this.type) {
@@ -56,52 +70,52 @@ class StrategyProfiler {
       for (int i=0; i<4; i++) {
         reformedPayoff[i] = this.payoffs[i][1];
       }
-      return this.scoresToPreferenceOrder(reformedPayoff, true);
+      return reformedPayoff;
 
     case AGGRESSIVE : // minimise opp. payoff
       for (int i=0; i<4; i++) {
-        reformedPayoff[i] = this.payoffs[i][1];
+        reformedPayoff[i] = -this.payoffs[i][1];
       }
-      return this.scoresToPreferenceOrder(reformedPayoff, false);
+      return reformedPayoff;
 
     case COMPETITIVE : // maximise payoff diff
       for (int i=0; i<4; i++) {
         reformedPayoff[i] = abs(this.payoffs[i][0] - this.payoffs[i][1]);
       }
-      return this.scoresToPreferenceOrder(reformedPayoff, true);
+      return reformedPayoff;
 
     case EQUITABLE : // minimise payoff diff
       for (int i=0; i<4; i++) {
-        reformedPayoff[i] = abs(this.payoffs[i][0] - this.payoffs[i][1]);
+        reformedPayoff[i] = -abs(this.payoffs[i][0] - this.payoffs[i][1]);
       }
-      return this.scoresToPreferenceOrder(reformedPayoff, false);
+      return reformedPayoff;
 
     case COOPERATIVE : // maximise payoff sum
       for (int i=0; i<4; i++) {
         reformedPayoff[i] = this.payoffs[i][0] + this.payoffs[i][1];
       }
-      return this.scoresToPreferenceOrder(reformedPayoff, true);
+      return reformedPayoff;
 
     case NARCISSIST : // minimise payoff sum
       for (int i=0; i<4; i++) {
-        reformedPayoff[i] = this.payoffs[i][0] + this.payoffs[i][1];
+        reformedPayoff[i] = -(this.payoffs[i][0] + this.payoffs[i][1]);
       }
-      return this.scoresToPreferenceOrder(reformedPayoff, false);
+      return reformedPayoff;
 
     case INDIVIDUAL : // maximise player payoff
       for (int i=0; i<4; i++) {
         reformedPayoff[i] = this.payoffs[i][0];
       }
-      return this.scoresToPreferenceOrder(reformedPayoff, true);
+      return reformedPayoff;
 
     case MARTYR : // minimise player payoff
       for (int i=0; i<4; i++) {
-        reformedPayoff[i] = this.payoffs[i][0];
+        reformedPayoff[i] = -this.payoffs[i][0];
       }
-      return this.scoresToPreferenceOrder(reformedPayoff, false);
+      return reformedPayoff;
 
     default:
-      return new int[]{0, 1, 2, 3};
+      return new float[]{0, 0, 0, 0};
     }
   }
 }
