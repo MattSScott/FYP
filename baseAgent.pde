@@ -520,8 +520,8 @@ class Agent {
     StrategyProfiler profilePlayer = new StrategyProfiler(this.type, opponent.utility, opponent.offence, this.defence);
     StrategyProfiler profileOpponent = new StrategyProfiler(oppData.profileToMotive(), this.utility, this.offence, opponent.defence);
 
-    int[] playerStrat = profilePlayer.genStrategy();
-    int[] opponentStrat = profileOpponent.genStrategy();
+    int[] playerStrat = profilePlayer.scoresToPreferenceOrder();
+    int[] opponentStrat = profileOpponent.scoresToPreferenceOrder();
 
     int idealQuadrant = this.aggregateStrats(playerStrat, opponentStrat);
 
