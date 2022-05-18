@@ -181,7 +181,7 @@ class Server {
       }
     }
   }
-  
+
 
   void runActionSession(Agent a, ArrayList<Agent> nearbyAgents) {
     ActionMessage action = a.decideAction(nearbyAgents);
@@ -275,6 +275,19 @@ class Server {
     if (frameCount % 100 == 0) {
       this.addAgent(AgentType.NARCISSIST);
     }
+
+    println();
+    println("DEBUG");
+    println();
+    Narcissist narc = new Narcissist(10, 10, 10, 20);
+    narc.utility = 10000;
+    Altruist alt = new Altruist(11, 10, 10, 20);
+    alt.offence = 1000;
+    println(narc.compileHawkDoveStrategy(alt));
+    println();
+    println("DEBUG");
+    println();
+
 
     if (this.numAliveAgents == 1) {
       println("Agent " + this.aliveAgents.get(0).getID() + " is victorious!");

@@ -515,6 +515,8 @@ class Agent {
 
   ActionType compileHawkDoveStrategy(Agent opponent) {
 
+    this.updateAgentProfile(opponent.ID, 0, 0, 0);
+
     AgentProfile oppData = this.agentProfiles.get(opponent.getID());
 
     StrategyProfiler profilePlayer = new StrategyProfiler(this.type, opponent.utility, opponent.offence, this.defence);
@@ -542,6 +544,8 @@ class Agent {
       bordaVotes[votep1] += 4-i;
       bordaVotes[votep2] += 4-i;
     }
+    
+    println(bordaVotes);
 
     int maxVote = max(bordaVotes);
 

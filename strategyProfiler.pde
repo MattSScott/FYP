@@ -47,6 +47,28 @@ class StrategyProfiler {
     return prefOrder;
   }
 
+  float findProbOptimal(int[] payoffs, boolean maximise) {
+    float A = payoffs[0];
+    float B = payoffs[1];
+    float C = payoffs[2];
+    float D = payoffs[3];
+    
+    if(!maximise) {
+      A *= -1;
+      B *= -1;
+      C *= -1;
+      D *= -1;
+    }
+
+    float num = (D - C);
+    float den1 = (A + D);
+    float den2 = (C + B);
+
+    float den = den1 - den2;
+
+    return num / den;
+  }
+
 
   int[] genStrategy() {
     float[] reformedPayoff = new float[4];
