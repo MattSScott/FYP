@@ -18,7 +18,9 @@ class StrategyProfiler {
     return new float[][]{ {mutualAgg, -mutualAgg}, {this.value, 0}, {0, this.value}, {mutualDef, mutualDef} };
   }
 
-  int[] scoresToPreferenceOrder(float[] scores) {
+  int[] scoresToPreferenceOrder() {
+    
+    float[] scores = this.genExpectedPayoffs();
     float[][] augScores = new float[4][2];
 
     for (int i=0; i<4; i++) {
@@ -58,7 +60,7 @@ class StrategyProfiler {
     
     float den = den1 - den2;
     
-    return num / den;
+    return constrain(num / den, 1, 0); // outside of bounds implies dominant strategy
   }
 
 
