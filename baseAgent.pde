@@ -512,10 +512,25 @@ class Agent {
     return false;
   }
 
+  ActionType compileHawkDoveStrategyMixed(Agent opponent) {
+    StrategyProfiler profilePlayer = new StrategyProfiler(this.type, opponent.utility, opponent.offence, this.defence);
+    float atkProb = profilePlayer.mixedStrategyProb();
 
-  ActionType compileHawkDoveStrategy(Agent opponent) {
+    if (random(1) < atkProb) {
+      return ActionType.launchAttack;
+    }
+    return ActionType.boostDefence;
+  }
+
+
+  ActionType compileHawkDoveStrategyBorda(Agent opponent) {
 
     AgentProfile oppData = this.agentProfiles.get(opponent.getID());
+
+    if (oppData == null) { // if not yet interacted with opponent, generate clean profile
+      oppData = new AgentProfile();
+      this.agentProfiles.put(opponent.getID(), oppData);
+    }
 
     StrategyProfiler profilePlayer = new StrategyProfiler(this.type, opponent.utility, opponent.offence, this.defence);
     StrategyProfiler profileOpponent = new StrategyProfiler(oppData.profileToMotive(), this.utility, this.offence, opponent.defence);
@@ -525,7 +540,7 @@ class Agent {
 
     int idealQuadrant = this.aggregateStrats(playerStrat, opponentStrat);
 
-    if (idealQuadrant < 2) {
+    if (idealQuadrant < 2) { // ideal quadrant = 0 or 1, so attack
       return ActionType.launchAttack;
     }
     return ActionType.boostDefence;

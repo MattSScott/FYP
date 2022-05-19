@@ -19,7 +19,7 @@ class StrategyProfiler {
   }
 
   int[] scoresToPreferenceOrder() {
-    
+
     float[] scores = this.genExpectedPayoffs();
     float[][] augScores = new float[4][2];
 
@@ -53,13 +53,13 @@ class StrategyProfiler {
     float B = augPayoffs[1];
     float C = augPayoffs[2];
     float D = augPayoffs[3];
-    
+
     float num = D - C;
     float den1 = A + D;
     float den2 = C + B;
-    
+
     float den = den1 - den2;
-    
+
     return constrain(num / den, 1, 0); // outside of bounds implies dominant strategy
   }
 
