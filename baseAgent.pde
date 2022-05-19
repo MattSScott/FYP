@@ -17,7 +17,7 @@ class Agent {
   float offence;
   float defence;
   float utility;
-  private float buyInProb; // how likely am I to not break treaties
+  protected float buyInProb; // how likely am I to not break treaties
   int age;
   boolean showDialogueBox;
   HashMap<Integer, AgentProfile> agentProfiles; // map agent id to struct of utility choices and treaty choices
@@ -155,7 +155,7 @@ class Agent {
 
   void drawDialogueBox() {
     float rectW = 100;
-    float rectH = 55;
+    float rectH = 80;
     float topLeftX = this.pos.x - rectW/2 + 5;
     float topLeftY = this.pos.y - this.currSize - 1.3*rectH;
 
@@ -167,11 +167,13 @@ class Agent {
 
     // Draw text //
     textAlign(CORNER);
-    text("Age: " + this.age, topLeftX, topLeftY);
-    text("Attack: " + this.offence, topLeftX, topLeftY+10);
-    text("Defence: " + this.defence, topLeftX, topLeftY+20);
-    text("Utility: " + this.utility, topLeftX, topLeftY+30);
-    text("Treaty Count: " + this.activeTreaties.size(), topLeftX, topLeftY+40);
+    text("Type: " + this.type, topLeftX, topLeftY);
+    text("Age: " + this.age, topLeftX, topLeftY+10);
+    text("Attack: " + this.offence, topLeftX, topLeftY+20);
+    text("Defence: " + this.defence, topLeftX, topLeftY+30);
+    text("Utility: " + this.utility, topLeftX, topLeftY+40);
+    text("Treaty Count: " + this.activeTreaties.size(), topLeftX, topLeftY+50);
+    text("P(BuyIn): " + this.buyInProb, topLeftX, topLeftY+60);
   }
 
   // TREATY SESSION //
