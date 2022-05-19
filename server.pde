@@ -27,6 +27,24 @@ class Server {
     case ALTRUIST:
       agent = new Altruist(this.agentCtr+1, random(width), random(height), this.agentSize);
       break;
+    case COMPETITIVE:
+      agent = new Altruist(this.agentCtr+1, random(width), random(height), this.agentSize);
+      break;
+    case AGGRESSIVE:
+      agent = new Altruist(this.agentCtr+1, random(width), random(height), this.agentSize);
+      break;
+    case INDIVIDUAL:
+      agent = new Altruist(this.agentCtr+1, random(width), random(height), this.agentSize);
+      break;
+    case MARTYR:
+      agent = new Altruist(this.agentCtr+1, random(width), random(height), this.agentSize);
+      break;
+    case EQUITABLE:
+      agent = new Altruist(this.agentCtr+1, random(width), random(height), this.agentSize);
+      break;
+    case COOPERATIVE:
+      agent = new Altruist(this.agentCtr+1, random(width), random(height), this.agentSize);
+      break;
     case NARCISSIST:
       agent = new Narcissist(this.agentCtr+1, random(width), random(height), this.agentSize);
       break;
@@ -181,7 +199,7 @@ class Server {
       }
     }
   }
-  
+
 
   void runActionSession(Agent a, ArrayList<Agent> nearbyAgents) {
     ActionMessage action = a.decideAction(nearbyAgents);
