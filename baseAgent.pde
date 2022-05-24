@@ -154,7 +154,7 @@ class Agent {
   }
 
   void drawDialogueBox() {
-    float rectW = 100;
+    float rectW = 120;
     float rectH = 80;
     float topLeftX = this.pos.x - rectW/2 + 5;
     float topLeftY = this.pos.y - this.currSize - 1.3*rectH;
