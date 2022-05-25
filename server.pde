@@ -143,6 +143,12 @@ class Server {
     atk.target.defence = max(atk.target.defence - contrib, 0);
     println("agent " + atk.target.getID() + "'s health has dropped from " + atk.target.getHP() + " to " + newHP);
     atk.target.setHP(newHP);
+    if (newHP == 0) {
+      println("==== KILL ====");
+      println("agent " + atk.attacker.getID() + " killed agent " + atk.target.getID() + "! Stealing utility = " + atk.target.utility);
+      println("==== KILL ====");
+      atk.attacker.utility += atk.target.utility;
+    }
   }
 
 
@@ -256,7 +262,7 @@ class Server {
 
   void showAgents(boolean playing) {
     for (Agent a : this.aliveAgents) {
-      a.drawAgent(toggleActionButton.text);
+      a.drawAgent(toggleActionButton.getText());
       this.highlightAgent(a);
 
       //a.moveRandom();
@@ -338,7 +344,7 @@ class Server {
 
     this.showAgents(playPause.isPlaying());
 
-    if (toggleTreaties.getText() == "on") {
+    if (toggleTreaties.getText() == buttonReturn.ON) {
       this.visualiseTreaties();
     }
 

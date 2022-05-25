@@ -6,6 +6,7 @@ class Config {
   boolean seeInteractionsOnClick;
   float addAgentCooldown;
   boolean replaceUtilityOrDistuv;
+  float startingBuyInProb;
 
   Config() {
     this.agents = new HashMap<AgentType, Integer>();
@@ -23,5 +24,6 @@ class Config {
     this.seeInteractionsOnClick = true;
     this.addAgentCooldown = 100;
     this.replaceUtilityOrDistuv = true;
+    this.startingBuyInProb = 0.25;
   }
 }

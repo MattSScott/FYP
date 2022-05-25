@@ -47,7 +47,7 @@ class Agent {
     this.age = 0;
     this.showDialogueBox = false;
     this.highlighted = false;
-    this.buyInProb = 0.95;
+    this.buyInProb = config.startingBuyInProb;
   }
 
 
@@ -120,18 +120,18 @@ class Agent {
     return newDir;
   }
 
-  void drawAgent(String s) {
+  void drawAgent(buttonReturn s) {
 
     //float size;
 
     switch (s) {
-    case "utility":
+    case UTILITY:
       this.currSize = map(this.utility, 0, 500, this.baseSize/2, 60);
       break;
-    case "offence":
+    case OFFENCE:
       this.currSize = map(this.offence, 0, 200, this.baseSize/2, 60);
       break;
-    case "defence":
+    case DEFENCE:
       this.currSize = map(this.defence, 0, 200, this.baseSize/2, 60);
       break;
     default:

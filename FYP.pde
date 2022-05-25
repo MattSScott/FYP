@@ -49,7 +49,7 @@ void draw() {
   toggleActionButton.show();
 
   toggleTreaties.show();
-  
+
   playPause.show();
 
   server.run();
@@ -62,8 +62,8 @@ void mousePressed() {
   if (toggleTreaties.overButton()) {
     toggleTreaties.count();
   }
-  
-  if(playPause.overButton()){
+
+  if (playPause.overButton()) {
     playPause.toggle();
   }
   server.toggleAgentDialogue();
