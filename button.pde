@@ -1,21 +1,32 @@
+enum buttonReturn {
+  NONE,
+    UTILITY,
+    DEFENCE,
+    OFFENCE,
+    ON,
+    OFF
+}
+
 class Button {
   PVector pos;
-  String text;
+  buttonReturn text;
   float w;
   float h;
   Button(PVector pos) {
     this.pos = pos;
-    this.w = 50;
+    this.w = 70;
     this.h = 20;
-    this.text = "";
+    this.text = buttonReturn.NONE;
   }
 
   void show() {
-    fill(200);
+    fill(112);
     rectMode(CENTER);
-    rect(this.pos.x, this.pos.y, w, h);
-    fill(0);
-    text(this.text, this.pos.x, this.pos.y);
+    rect(this.pos.x, this.pos.y, this.w, this.h);
+    fill(255, 255, 0);
+    textSize(16);
+    text(this.text.name(), this.pos.x, this.pos.y+4);
+    textSize(12); // reset to default;
   }
 
   boolean overButton() {
@@ -30,11 +41,11 @@ class Button {
 
 class ToggleActionButton extends Button {
   int currentActionCtr;
-  String[] words;
+  buttonReturn[] words;
   ToggleActionButton(PVector pos) {
     super(pos);
     this.currentActionCtr = 0;
-    this.words = new String[]{"none", "utility", "offence", "defence"};
+    this.words = new buttonReturn[]{buttonReturn.NONE, buttonReturn.UTILITY, buttonReturn.OFFENCE, buttonReturn.DEFENCE};
     this.updateText();
   }
 
@@ -42,7 +53,7 @@ class ToggleActionButton extends Button {
     this.text = this.words[this.currentActionCtr];
   }
 
-  String getText() {
+  buttonReturn getText() {
     return this.text;
   }
 
@@ -56,7 +67,7 @@ class ToggleActionButton extends Button {
 class ShowTreatiesButton extends ToggleActionButton {
   ShowTreatiesButton(PVector pos) {
     super(pos);
-    this.words = new String[]{"on", "off"};
+    this.words = new buttonReturn[]{buttonReturn.ON, buttonReturn.OFF};
     this.updateText();
   }
 }
