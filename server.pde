@@ -18,6 +18,7 @@ class Server {
     this.agentCtr = 0;
     this.showActiveNeighbourhoods = false;
     this.activeAgent = null;
+    this.initialiseAllAgentProfiles(this.aliveAgents);
   }
 
 
@@ -25,7 +26,7 @@ class Server {
     return this.aliveAgents;
   }
 
-  void addAgent(AgentType motive) {
+  Agent addAgent(AgentType motive) {
     Agent agent;
     switch(motive) {
     case ALTRUIST:
@@ -60,6 +61,7 @@ class Server {
     this.aliveAgents.add(agent);
     this.agentCtr++;
     this.numAliveAgents++;
+    return agent;
   }
 
   void initialiseAgents() {
@@ -77,6 +79,12 @@ class Server {
       int socialMotiveIndex = int(random(socialMotives.length));
       AgentType motive = socialMotives[socialMotiveIndex];
       this.addAgent(motive);
+    }
+  }
+
+  void initialiseAllAgentProfiles(ArrayList<Agent> newAgents) {
+    for (Agent a : this.aliveAgents) {
+      a.initialiseAgentProfiles(newAgents);
     }
   }
 
@@ -276,7 +284,7 @@ class Server {
   }
 
   void highlightAgent(Agent a) {
-    if (this.showActiveNeighbourhoods && a.neighbourhood == this.activeAgent.neighbourhood) {
+    if (a.getHP() > 0 && this.showActiveNeighbourhoods && a.neighbourhood == this.activeAgent.neighbourhood) {
       a.highlighted = true;
     } else {
       a.highlighted = false;
@@ -342,11 +350,12 @@ class Server {
 
   void run() {
 
-    this.showAgents(playPause.isPlaying());
-
     if (toggleTreaties.getText() == buttonReturn.ON) {
       this.visualiseTreaties();
     }
+
+    this.showAgents(playPause.isPlaying());
+
 
     if (playPause.isPlaying()) {
 
@@ -357,12 +366,16 @@ class Server {
 
 
       if (frameCount % config.addAgentCooldown == 0) {
-        this.addAgent(this.geneticReplacement());
+        Agent added = this.addAgent(this.geneticReplacement());
+        added.initialiseAgentProfiles(this.aliveAgents); // build up profile of all other agents
+        ArrayList<Agent> addedList = new ArrayList<Agent>();
+        addedList.add(added);
+        this.initialiseAllAgentProfiles(addedList); // have all agents build profile of it
       }
 
 
       if (this.numAliveAgents == 1) {
-        println("Agent " + this.aliveAgents.get(0).getID() + " is victorious!");
+        println("agent " + this.aliveAgents.get(0).getID() + " is victorious!");
         println();
         println("SIMULATION END");
         println();

@@ -1,5 +1,6 @@
 class Agent {
   protected AgentType type; // what is my social motive
+  protected AgentType opposite; // what is my 'enemy'
   private PVector pos; // where am I on the screen
   private float baseSize;
   private float currSize;
@@ -21,7 +22,7 @@ class Agent {
   int age;
   boolean showDialogueBox;
   boolean highlighted;
-  HashMap<Integer, AgentProfile> agentProfiles; // map agent id to struct of utility choices and treaty choices
+  HashMap<Agent, AgentProfile> agentProfiles; // map agent id to struct of utility choices and treaty choices
 
   Agent(int id, float x, float y, float size) {
     this.ID = id;
@@ -43,7 +44,7 @@ class Agent {
     this.defence = 5;
     this.utility = 0;
     this.pointsToInvest = 50;
-    this.agentProfiles = new HashMap<Integer, AgentProfile>();
+    this.agentProfiles = new HashMap<Agent, AgentProfile>();
     this.age = 0;
     this.showDialogueBox = false;
     this.highlighted = false;
@@ -236,22 +237,27 @@ class Agent {
     return true;
   }
 
-  void updateAgentProfile(int agentID, float treatyUpdate, float aggUpdate, float hedUpdate) {
-    if (!this.agentProfiles.containsKey(agentID)) {
-      this.agentProfiles.put(agentID, new AgentProfile());
+  void initialiseAgentProfiles(ArrayList<Agent> allAgents) {
+    for (Agent other : allAgents) {
+      if (other != this) {
+        this.agentProfiles.put(other, new AgentProfile());
+      }
     }
-    AgentProfile profile = this.agentProfiles.get(agentID);
+  }
+
+  void updateAgentProfile(Agent agent, float treatyUpdate, float aggUpdate, float hedUpdate) {
+    AgentProfile profile = this.agentProfiles.get(agent);
     profile.aggression = constrain(profile.aggression + aggUpdate, -10, 10);
     profile.treatyScore = constrain(profile.treatyScore + treatyUpdate, -10, 10);
     profile.hedonism = constrain(profile.hedonism + hedUpdate, -10, 10);
   }
 
   void handleTreatyResponse(TreatyResponse tr) { // update profile based on treaty responses
-    int responderID = tr.proposal.treatyTo.getID();
+    Agent responder = tr.proposal.treatyTo;
     if (tr.response) {
-      this.updateAgentProfile(responderID, 1, -1, 1);
+      this.updateAgentProfile(responder, 1, -1, 1);
     } else {
-      this.updateAgentProfile(responderID, -1, 0, 0);
+      this.updateAgentProfile(responder, -1, 0, 0);
     }
   }
 
@@ -266,19 +272,27 @@ class Agent {
 
   ActionMessage decideAction(ArrayList<Agent> nearbyAgents) {
 
-    float rand = random(1);
+    int rand = int(random(nearbyAgents.size()));
+    float randAct = random(1);
 
-    if ( rand < 0.25) {
-      return this.stockpileDefence();
-    }
-    if ( rand < 0.5 || nearbyAgents.size() == 0) {
-      return this.stockpileOffence();
-    }
-    if ( rand < 0.75) {
+    Agent opponent = nearbyAgents.get(rand);
+
+    ActionType action = compileHawkDoveStrategyBorda(opponent);
+
+    if (randAct < 0.25) {
       return this.stockpileUtility();
+    } else if (randAct < 0.5) {
+      return this.stockpileOffence();
+    } else {
+      switch(action) {
+      case boostDefence:
+        return this.stockpileDefence();
+      case launchAttack:
+        return this.declareAttack(opponent);
+      default:
+        return this.stockpileUtility();
+      }
     }
-    int randomTarget = int(random(nearbyAgents.size()));
-    return this.declareAttack(nearbyAgents.get(randomTarget));
   }
 
   ActionMessage decideActionIfInvalid(ActionMessage action) {
@@ -293,7 +307,7 @@ class Agent {
     Agent breaker = this.findTreatyWith(t);
     boolean willCancelTreaty = false;
 
-    this.updateAgentProfile(breaker.ID, -2, 3, 0);
+    this.updateAgentProfile(breaker, -2, 3, 0);
 
     if (random(1) > this.buyInProb) {
       willCancelTreaty = true;
@@ -325,15 +339,25 @@ class Agent {
   }
 
   void receiveAttackNotif(AttackInfo atk) {
-    int attackerID = atk.attacker.getID();
     float dmg = atk.damageDealt();
-    this.updateAgentProfile(attackerID, 0, dmg/10.0, 0);
+    this.updateAgentProfile(atk.attacker, 0, dmg/10.0, 0);
   }
 
 
   // FLOCKING //
 
   ArrayList<Agent> filterAgentsForFlocking(ArrayList<Agent> allAgents) { // override to flock conditionally
+    ArrayList<Agent> flockmates = new ArrayList<Agent>();
+    for (Agent a : allAgents) {
+      if (a != this) {
+        AgentProfile p = this.agentProfiles.get(a);
+        if ((!config.oppositesAttract && p.profileToMotive() == this.type)
+          || (config.oppositesAttract && p.profileToMotive() == this.opposite)) {
+          flockmates.add(a);
+        }
+      }
+    }
+    //return new ArrayList<Agent>();
     return allAgents;
   }
 
@@ -347,7 +371,7 @@ class Agent {
       //}
     }
 
-    avgPos.div(boids.size());
+    avgPos.div(max(1, boids.size()));
 
     avgPos.sub(this.pos);
 
@@ -540,12 +564,7 @@ class Agent {
 
   ActionType compileHawkDoveStrategyBorda(Agent opponent) {
 
-    AgentProfile oppData = this.agentProfiles.get(opponent.getID());
-
-    if (oppData == null) { // if not yet interacted with opponent, generate clean profile
-      oppData = new AgentProfile();
-      this.agentProfiles.put(opponent.getID(), oppData);
-    }
+    AgentProfile oppData = this.agentProfiles.get(opponent);
 
     StrategyProfiler profilePlayer = new StrategyProfiler(this.type, opponent.utility, opponent.offence, this.defence);
     StrategyProfiler profileOpponent = new StrategyProfiler(oppData.profileToMotive(), this.utility, this.offence, opponent.defence);

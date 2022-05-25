@@ -3,6 +3,7 @@ class Cooperative extends Agent {
     super(id, x, y, size);
     this.type = AgentType.COOPERATIVE;
     this.col = color(255, 51, 204);
+    this.opposite = AgentType.NARCISSIST;
   }
 
 
@@ -26,10 +27,5 @@ class Cooperative extends Agent {
 
   ActionMessage decideAction(ArrayList<Agent> nearbyAgents) {
     return this.stockpileUtility();
-  }
-
-
-  ArrayList<Agent> filterAgentsForFlocking(ArrayList<Agent> allAgents) { // override to flock conditionally
-    return allAgents;
   }
 }
