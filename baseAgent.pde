@@ -20,6 +20,7 @@ class Agent {
   protected float buyInProb; // how likely am I to not break treaties
   int age;
   boolean showDialogueBox;
+  boolean highlighted;
   HashMap<Integer, AgentProfile> agentProfiles; // map agent id to struct of utility choices and treaty choices
 
   Agent(int id, float x, float y, float size) {
@@ -45,6 +46,7 @@ class Agent {
     this.agentProfiles = new HashMap<Integer, AgentProfile>();
     this.age = 0;
     this.showDialogueBox = false;
+    this.highlighted = false;
     this.buyInProb = 0.95;
   }
 
@@ -147,10 +149,20 @@ class Agent {
       fill(0);
     }
 
+    if (this.highlighted) {
+      stroke(0, 255, 0);
+      strokeWeight(5);
+    } else {
+      stroke(0);
+      strokeWeight(1);
+    }
+
     ellipse(this.pos.x, this.pos.y, this.currSize, this.currSize);
     fill(0);
     textAlign(CENTER);
     text(this.ID, this.pos.x, this.pos.y+5);
+    stroke(0); // reset drawing tools if highlighted
+    strokeWeight(1);
   }
 
   void drawDialogueBox() {
