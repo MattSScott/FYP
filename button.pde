@@ -49,7 +49,7 @@ class ToggleActionButton extends Button {
   void count() {
     this.currentActionCtr++;
     this.currentActionCtr = this.currentActionCtr % this.words.length;
-    updateText();
+    this.updateText();
   }
 }
 
@@ -58,5 +58,44 @@ class ShowTreatiesButton extends ToggleActionButton {
     super(pos);
     this.words = new String[]{"on", "off"};
     this.updateText();
+  }
+}
+
+class PlayPause extends Button {
+  boolean playing;
+  float w;
+  PlayPause(PVector pos) {
+    super(pos);
+    this.playing = true;
+    this.w = 50;
+  }
+
+  boolean isPlaying() {
+    return this.playing;
+  }
+
+  void toggle() {
+    this.playing = !this.playing;
+  }
+
+  void show() {
+    fill(112);
+    ellipse(this.pos.x, this.pos.y, this.w, this.w);
+    fill(0, 255, 0);
+    if (playing) {
+      rect(this.pos.x-this.w/6, this.pos.y, 10, 30);
+      rect(this.pos.x+this.w/6, this.pos.y, 10, 30);
+    } else {
+      float x1 = this.pos.x - this.w/3;
+      float y1 = this.pos.y - this.w/3;
+
+      float x2 = this.pos.x - this.w/3;
+      float y2 = this.pos.y + this.w/3;
+
+      float x3 = this.pos.x + this.w/3;
+      float y3 = this.pos.y;
+
+      triangle(x1+5, y1, x2+5, y2, x3+5, y3);
+    }
   }
 }

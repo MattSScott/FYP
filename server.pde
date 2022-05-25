@@ -165,9 +165,6 @@ class Server {
         //a.pointsToInvest += 10;
       }
     }
-    if (toggleTreaties.getText() == "on") {
-      this.visualiseTreaties();
-    }
   }
 
   ArrayList<Agent> getNearbyAgents(Agent a) {
@@ -257,14 +254,16 @@ class Server {
     return a1 != a2 && a1.neighbourhood == a2.neighbourhood;
   }
 
-  void showAgents() {
+  void showAgents(boolean playing) {
     for (Agent a : this.aliveAgents) {
       a.drawAgent(toggleActionButton.text);
       this.highlightAgent(a);
 
       //a.moveRandom();
       //a.moveCalculated();
-      a.flock(this.aliveAgents);
+      if (playing) {
+        a.flock(this.aliveAgents);
+      }
     }
 
     this.drawHealthBars();
@@ -300,29 +299,39 @@ class Server {
       a.age++;
     }
   }
-  
+
   void run() {
-    if (this.numAliveAgents > 1) {
-      genNeighbourhoods(this.aliveAgents, this.numAliveAgents / 2); // have num clusters = floor(1/2 total agents)
-      this.runInteractionSession();
+
+    this.showAgents(playPause.isPlaying());
+
+    if (toggleTreaties.getText() == "on") {
+      this.visualiseTreaties();
     }
 
-    this.showAgents();
+    if (playPause.isPlaying()) {
+      
+      if (this.numAliveAgents > 1) {
+        genNeighbourhoods(this.aliveAgents, this.numAliveAgents / 2); // have num clusters = floor(1/2 total agents)
+        this.runInteractionSession();
+      }
 
-    if (frameCount % config.addAgentCooldown == 0) {
-      this.addAgent(AgentType.NARCISSIST);
-    }
 
-    if (this.numAliveAgents == 1) {
-      println("Agent " + this.aliveAgents.get(0).getID() + " is victorious!");
-      println();
-      println("SIMULATION END");
-      println();
-    } else {
-      this.handleEndOfTurn();
-      println();
-      println("NEW TURN");
-      println();
+      if (frameCount % config.addAgentCooldown == 0) {
+        this.addAgent(AgentType.NARCISSIST);
+      }
+
+
+      if (this.numAliveAgents == 1) {
+        println("Agent " + this.aliveAgents.get(0).getID() + " is victorious!");
+        println();
+        println("SIMULATION END");
+        println();
+      } else {
+        this.handleEndOfTurn();
+        println();
+        println("NEW TURN");
+        println();
+      }
     }
   }
 }

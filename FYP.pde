@@ -30,14 +30,17 @@ ToggleActionButton toggleActionButton;
 
 ShowTreatiesButton toggleTreaties;
 
+PlayPause playPause;
+
 void setup() {
-  frameRate(5);
+  frameRate(10);
   size(700, 700);
   config = new Config();
   server = new Server(config);
   flockData = new FlockingData(1, 12.5, 30, 100); //cohesion, alignment, separation, separation distance
   toggleActionButton = new ToggleActionButton(new PVector(width-40, height-30));
   toggleTreaties = new ShowTreatiesButton(new PVector(width-40, height-80));
+  playPause = new PlayPause(new PVector(80, height-80));
 }
 
 void draw() {
@@ -46,6 +49,8 @@ void draw() {
   toggleActionButton.show();
 
   toggleTreaties.show();
+  
+  playPause.show();
 
   server.run();
 }
@@ -56,6 +61,10 @@ void mousePressed() {
   }
   if (toggleTreaties.overButton()) {
     toggleTreaties.count();
+  }
+  
+  if(playPause.overButton()){
+    playPause.toggle();
   }
   server.toggleAgentDialogue();
 }
