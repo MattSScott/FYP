@@ -4,6 +4,8 @@ class Server {
   private int agentSize;
   private int numAliveAgents;
   private int agentCtr;
+  private boolean showActiveNeighbourhoods;
+  private Agent activeAgent;
   Config config;
 
   Server(Config config) {
@@ -14,6 +16,8 @@ class Server {
     this.initialiseAgents();
     this.numAliveAgents = this.aliveAgents.size();
     this.agentCtr = 0;
+    this.showActiveNeighbourhoods = false;
+    this.activeAgent = null;
   }
 
 
@@ -235,6 +239,7 @@ class Server {
   void drawHealthBars() {
     float hpBarWidth = 40;
     float hpBarHeight = 10;
+    stroke(0);
 
     for (Agent a : this.aliveAgents) {
       float hp = a.getHP();
@@ -255,18 +260,34 @@ class Server {
   void showAgents() {
     for (Agent a : this.aliveAgents) {
       a.drawAgent(toggleActionButton.text);
+      this.highlightAgent(a);
+
       //a.moveRandom();
       //a.moveCalculated();
       a.flock(this.aliveAgents);
-      //println(a.activeTreaties);
     }
+
     this.drawHealthBars();
+  }
+
+  void highlightAgent(Agent a) {
+    if (this.showActiveNeighbourhoods && a.neighbourhood == this.activeAgent.neighbourhood) {
+      a.highlighted = true;
+    } else {
+      a.highlighted = false;
+    }
   }
 
   void toggleAgentDialogue() {
     for (Agent a : this.aliveAgents) {
       if (dist(mouseX, mouseY, a.pos.x, a.pos.y) <= a.getSize()/2) {
         a.showDialogueBox = !a.showDialogueBox;
+        if (config.seeInteractionsOnClick == true && a.showDialogueBox) {
+          this.showActiveNeighbourhoods = true;
+          this.activeAgent = a;
+        } else {
+          this.showActiveNeighbourhoods = false;
+        }
       }
     }
   }
@@ -279,18 +300,16 @@ class Server {
       a.age++;
     }
   }
-
+  
   void run() {
     if (this.numAliveAgents > 1) {
       genNeighbourhoods(this.aliveAgents, this.numAliveAgents / 2); // have num clusters = floor(1/2 total agents)
       this.runInteractionSession();
     }
 
-    //this.filterDeadAgents();
-    //this.filterExpiredTreaties();
     this.showAgents();
 
-    if (frameCount % 100 == 0) {
+    if (frameCount % config.addAgentCooldown == 0) {
       this.addAgent(AgentType.NARCISSIST);
     }
 

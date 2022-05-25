@@ -3,6 +3,8 @@ class Config {
   int randomAgents;
   int agentSize;
   float investmentPerTurn;
+  boolean seeInteractionsOnClick;
+  float addAgentCooldown;
 
   Config() {
     this.agents = new HashMap<AgentType, Integer>();
@@ -17,5 +19,7 @@ class Config {
     this.randomAgents = 0;
     this.agentSize = 20;
     this.investmentPerTurn = 5;
+    this.seeInteractionsOnClick = true;
+    this.addAgentCooldown = 100;
   }
 }
