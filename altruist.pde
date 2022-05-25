@@ -25,9 +25,9 @@ class Altruist extends Agent {
     return response;
   }
 
-  ActionMessage decideAction(ArrayList<Agent> nearbyAgents) {
-    return this.stockpileUtility();
-  }
+  //ActionMessage decideAction(ArrayList<Agent> nearbyAgents) {
+  //  return this.stockpileUtility();
+  //}
   
   //ArrayList<Agent> filterAgentsForFlocking(ArrayList<Agent> allAgents) { // debug to test flocking
   //  ArrayList<Agent> flockmates = new ArrayList<Agent>();

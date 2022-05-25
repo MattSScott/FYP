@@ -272,26 +272,31 @@ class Agent {
 
   ActionMessage decideAction(ArrayList<Agent> nearbyAgents) {
 
-    int rand = int(random(nearbyAgents.size()));
-    float randAct = random(1);
+    if (nearbyAgents.size() > 0) {
 
-    Agent opponent = nearbyAgents.get(rand);
+      int rand = int(random(nearbyAgents.size()));
+      float randAct = random(1);
 
-    ActionType action = compileHawkDoveStrategyBorda(opponent);
+      Agent opponent = nearbyAgents.get(rand);
 
-    if (randAct < 0.25) {
-      return this.stockpileUtility();
-    } else if (randAct < 0.5) {
-      return this.stockpileOffence();
-    } else {
-      switch(action) {
-      case boostDefence:
-        return this.stockpileDefence();
-      case launchAttack:
-        return this.declareAttack(opponent);
-      default:
+      ActionType action = compileHawkDoveStrategyBorda(opponent);
+
+      if (randAct < 0.25) {
         return this.stockpileUtility();
+      } else if (randAct < 0.5) {
+        return this.stockpileOffence();
+      } else {
+        switch(action) {
+        case boostDefence:
+          return this.stockpileDefence();
+        case launchAttack:
+          return this.declareAttack(opponent);
+        default:
+          return this.stockpileUtility();
+        }
       }
+    } else {
+      return this.stockpileUtility();
     }
   }
 
