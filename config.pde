@@ -17,7 +17,7 @@ class Config {
     agents.put(AgentType.EQUITABLE, 1);
     agents.put(AgentType.COOPERATIVE, 1);
     this.randomAgents = 0;
-    this.agentSize = 20;
+    this.agentSize = 30;
     this.investmentPerTurn = 5;
     this.seeInteractionsOnClick = true;
     this.addAgentCooldown = 100;

@@ -178,6 +178,7 @@ class Agent {
     rect(this.pos.x, this.pos.y - this.currSize - rectH, rectW, rectH);
 
     // Draw text //
+    fill(0);
     textAlign(CORNER);
     text("Type: " + this.type, topLeftX, topLeftY);
     text("Age: " + this.age, topLeftX, topLeftY+10);
