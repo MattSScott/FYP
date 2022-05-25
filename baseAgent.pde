@@ -1,5 +1,6 @@
 class Agent {
   protected AgentType type; // what is my social motive
+  protected AgentType opposite; // what is my 'enemy'
   private PVector pos; // where am I on the screen
   private float baseSize;
   private float currSize;
@@ -271,19 +272,27 @@ class Agent {
 
   ActionMessage decideAction(ArrayList<Agent> nearbyAgents) {
 
-    float rand = random(1);
+    int rand = int(random(nearbyAgents.size()));
+    float randAct = random(1);
 
-    if ( rand < 0.25) {
-      return this.stockpileDefence();
-    }
-    if ( rand < 0.5 || nearbyAgents.size() == 0) {
-      return this.stockpileOffence();
-    }
-    if ( rand < 0.75) {
+    Agent opponent = nearbyAgents.get(rand);
+
+    ActionType action = compileHawkDoveStrategyBorda(opponent);
+
+    if (randAct < 0.25) {
       return this.stockpileUtility();
+    } else if (randAct < 0.5) {
+      return this.stockpileOffence();
+    } else {
+      switch(action) {
+      case boostDefence:
+        return this.stockpileDefence();
+      case launchAttack:
+        return this.declareAttack(opponent);
+      default:
+        return this.stockpileUtility();
+      }
     }
-    int randomTarget = int(random(nearbyAgents.size()));
-    return this.declareAttack(nearbyAgents.get(randomTarget));
   }
 
   ActionMessage decideActionIfInvalid(ActionMessage action) {
@@ -338,6 +347,17 @@ class Agent {
   // FLOCKING //
 
   ArrayList<Agent> filterAgentsForFlocking(ArrayList<Agent> allAgents) { // override to flock conditionally
+    ArrayList<Agent> flockmates = new ArrayList<Agent>();
+    for (Agent a : allAgents) {
+      if (a != this) {
+        AgentProfile p = this.agentProfiles.get(a);
+        if ((!config.oppositesAttract && p.profileToMotive() == this.type)
+          || (config.oppositesAttract && p.profileToMotive() == this.opposite)) {
+          flockmates.add(a);
+        }
+      }
+    }
+    //return new ArrayList<Agent>();
     return allAgents;
   }
 
@@ -351,7 +371,7 @@ class Agent {
       //}
     }
 
-    avgPos.div(boids.size());
+    avgPos.div(max(1, boids.size()));
 
     avgPos.sub(this.pos);
 

@@ -3,6 +3,7 @@ class Aggressive extends Agent {
     super(id, x, y, size);
     this.type = AgentType.AGGRESSIVE;
     this.col = color(0, 255, 255);
+    this.opposite = AgentType.ALTRUIST;
   }
 
 
@@ -26,10 +27,5 @@ class Aggressive extends Agent {
 
   ActionMessage decideAction(ArrayList<Agent> nearbyAgents) {
     return this.stockpileUtility();
-  }
-
-
-  ArrayList<Agent> filterAgentsForFlocking(ArrayList<Agent> allAgents) { // override to flock conditionally
-    return allAgents;
   }
 }

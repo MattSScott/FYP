@@ -3,6 +3,7 @@ class Altruist extends Agent {
     super(id, x, y, size);
     this.type = AgentType.ALTRUIST;
     this.col = color(0, 255, 0);
+    this.opposite = AgentType.AGGRESSIVE;
   }
 
 
@@ -27,9 +28,14 @@ class Altruist extends Agent {
   ActionMessage decideAction(ArrayList<Agent> nearbyAgents) {
     return this.stockpileUtility();
   }
-
-
-  ArrayList<Agent> filterAgentsForFlocking(ArrayList<Agent> allAgents) { // override to flock conditionally
-    return allAgents;
-  }
+  
+  //ArrayList<Agent> filterAgentsForFlocking(ArrayList<Agent> allAgents) { // debug to test flocking
+  //  ArrayList<Agent> flockmates = new ArrayList<Agent>();
+  //  for(Agent a : allAgents){
+  //    if(a.type == AgentType.ALTRUIST){
+  //      flockmates.add(a);
+  //    }
+  //  }
+  //  return flockmates;
+  //}
 }

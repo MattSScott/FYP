@@ -3,6 +3,7 @@ class Competitive extends Agent {
     super(id, x, y, size);
     this.type = AgentType.COMPETITIVE;
     this.col = color(255, 255, 255);
+    this.opposite = AgentType.EQUITABLE;
   }
 
 
@@ -26,10 +27,5 @@ class Competitive extends Agent {
 
   ActionMessage decideAction(ArrayList<Agent> nearbyAgents) {
     return this.stockpileDefence();
-  }
-
-
-  ArrayList<Agent> filterAgentsForFlocking(ArrayList<Agent> allAgents) { // override to flock conditionally
-    return allAgents;
   }
 }

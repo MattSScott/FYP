@@ -3,6 +3,7 @@ class Narcissist extends Agent {
     super(id, x, y, size);
     this.type = AgentType.NARCISSIST;
     this.col = color(255, 0, 0);
+    this.opposite = AgentType.COOPERATIVE;
   }
 
 

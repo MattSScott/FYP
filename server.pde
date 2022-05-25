@@ -81,9 +81,9 @@ class Server {
       this.addAgent(motive);
     }
   }
-  
-  void initialiseAllAgentProfiles(ArrayList<Agent> newAgents){
-    for(Agent a : this.aliveAgents){
+
+  void initialiseAllAgentProfiles(ArrayList<Agent> newAgents) {
+    for (Agent a : this.aliveAgents) {
       a.initialiseAgentProfiles(newAgents);
     }
   }
@@ -350,11 +350,12 @@ class Server {
 
   void run() {
 
-    this.showAgents(playPause.isPlaying());
-
     if (toggleTreaties.getText() == buttonReturn.ON) {
       this.visualiseTreaties();
     }
+
+    this.showAgents(playPause.isPlaying());
+
 
     if (playPause.isPlaying()) {
 

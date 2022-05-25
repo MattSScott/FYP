@@ -3,6 +3,7 @@ class Martyr extends Agent {
     super(id, x, y, size);
     this.type = AgentType.MARTYR;
     this.col = color(255, 165, 0);
+    this.opposite = AgentType.INDIVIDUAL;
   }
 
 
@@ -26,10 +27,5 @@ class Martyr extends Agent {
 
   ActionMessage decideAction(ArrayList<Agent> nearbyAgents) {
     return this.stockpileUtility();
-  }
-
-
-  ArrayList<Agent> filterAgentsForFlocking(ArrayList<Agent> allAgents) { // override to flock conditionally
-    return allAgents;
   }
 }
