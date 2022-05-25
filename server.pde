@@ -300,6 +300,40 @@ class Server {
     }
   }
 
+  AgentType geneticReplacement() {
+    // Input data into map
+    HashMap<AgentType, Float> agentTally = new HashMap<AgentType, Float>();
+    for (Agent a : this.aliveAgents) {
+      float input = config.replaceUtilityOrDistuv ? a.utility : 1.0;
+      if (agentTally.get(a.type) == null) {
+        agentTally.put(a.type, input);
+      } else {
+        float curr = agentTally.get(a.type);
+        agentTally.put(a.type, curr + input);
+      }
+    }
+    // normalise map to reflect P(replacement)
+    float runningTotal = 0;
+    for (float v : agentTally.values()) {
+      runningTotal += v;
+    }
+
+    float prob = random(1);
+    float cumProb = 0;
+
+    for (AgentType a : agentTally.keySet()) {
+      float valRaw = agentTally.get(a);
+      float valNorm = valRaw / runningTotal;
+      cumProb += valNorm;
+      if (prob < cumProb) {
+        return a;
+      }
+    }
+
+    // default return
+    return AgentType.NARCISSIST;
+  }
+
   void run() {
 
     this.showAgents(playPause.isPlaying());
@@ -309,7 +343,7 @@ class Server {
     }
 
     if (playPause.isPlaying()) {
-      
+
       if (this.numAliveAgents > 1) {
         genNeighbourhoods(this.aliveAgents, this.numAliveAgents / 2); // have num clusters = floor(1/2 total agents)
         this.runInteractionSession();
@@ -317,7 +351,7 @@ class Server {
 
 
       if (frameCount % config.addAgentCooldown == 0) {
-        this.addAgent(AgentType.NARCISSIST);
+        this.addAgent(this.geneticReplacement());
       }
 
 

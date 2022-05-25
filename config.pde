@@ -5,6 +5,7 @@ class Config {
   float investmentPerTurn;
   boolean seeInteractionsOnClick;
   float addAgentCooldown;
+  boolean replaceUtilityOrDistuv;
 
   Config() {
     this.agents = new HashMap<AgentType, Integer>();
@@ -21,5 +22,6 @@ class Config {
     this.investmentPerTurn = 5;
     this.seeInteractionsOnClick = true;
     this.addAgentCooldown = 100;
+    this.replaceUtilityOrDistuv = true;
   }
 }
