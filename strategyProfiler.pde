@@ -117,7 +117,7 @@ class StrategyProfiler {
       return reformedPayoff;
 
     default:
-      return new float[]{0, 0, 0, 0};
+      return new float[]{0, 1, 2, 3};
     }
   }
 }

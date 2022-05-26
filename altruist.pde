@@ -29,13 +29,13 @@ class Altruist extends Agent {
   //  return this.stockpileUtility();
   //}
   
-  //ArrayList<Agent> filterAgentsForFlocking(ArrayList<Agent> allAgents) { // debug to test flocking
-  //  ArrayList<Agent> flockmates = new ArrayList<Agent>();
-  //  for(Agent a : allAgents){
-  //    if(a.type == AgentType.ALTRUIST){
-  //      flockmates.add(a);
-  //    }
-  //  }
-  //  return flockmates;
-  //}
+  ArrayList<Agent> filterAgentsForFlocking(ArrayList<Agent> allAgents) { // debug to test flocking
+    ArrayList<Agent> flockmates = new ArrayList<Agent>();
+    for(Agent a : allAgents){
+      if(a.type == AgentType.ALTRUIST){
+        flockmates.add(a);
+      }
+    }
+    return flockmates;
+  }
 }

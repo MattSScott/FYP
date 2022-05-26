@@ -13,7 +13,7 @@ class Agent {
   ArrayList<Treaty> activeTreaties; // what propositions have been made to me so far
   private float speed;
   private PVector velocity; //destination used for smooth agent movement
-  private PVector target;
+  //private PVector target;
   float pointsToInvest;
   float offence;
   float defence;
@@ -28,6 +28,7 @@ class Agent {
     this.ID = id;
     this.pos = new PVector(x, y);
     this.type = AgentType.BASE;
+    this.opposite = AgentType.BASE;
     this.baseSize = size;
     this.currSize = size;
     this.col = color(0, 0, 0);
@@ -37,8 +38,9 @@ class Agent {
     this.HP = 100;
     this.speed = random(1, 6);
     //this.speed = 0;
-    this.target = new PVector( random(width), random(height) );
-    this.velocity = this.calculateVelocity(target.copy());
+    //this.target = new PVector( random(width), random(height) );
+    //this.velocity = this.calculateVelocity(target.copy());
+    this.velocity = new PVector();
     //this.velocity = new PVector( random(-10, 10), random(-10, 10) );
     this.offence = 5;
     this.defence = 5;
@@ -91,21 +93,21 @@ class Agent {
     }
   }
 
-  void moveRandom() {
-    PVector mov = new PVector( random(-50.0, 50.0), random(-50.0, 50.0) );
-    this.pos.add(mov);
-    this.agentConstrain();
-  }
+  //void moveRandom() {
+  //  PVector mov = new PVector( random(-50.0, 50.0), random(-50.0, 50.0) );
+  //  this.pos.add(mov);
+  //  this.agentConstrain();
+  //}
 
-  void moveCalculated() {
-    if (dist(this.pos.x, this.pos.y, this.target.x, this.target.y) <= 5 ) {
-      this.target = new PVector( random(width), random(height) );
-      this.velocity = this.calculateVelocity(this.target.copy());
-    }
-    this.pos.add(velocity);
-    //println(this.pos, this.target);
-    this.agentConstrain();
-  }
+  //void moveCalculated() {
+  //  if (dist(this.pos.x, this.pos.y, this.target.x, this.target.y) <= 5 ) {
+  //    this.target = new PVector( random(width), random(height) );
+  //    this.velocity = this.calculateVelocity(this.target.copy());
+  //  }
+  //  this.pos.add(velocity);
+  //  //println(this.pos, this.target);
+  //  this.agentConstrain();
+  //}
 
   void flock(ArrayList<Agent> allAgents) {
     ArrayList<Agent> boids = this.filterAgentsForFlocking(allAgents);
@@ -212,7 +214,7 @@ class Agent {
   }
 
   boolean willOfferTreaty(Agent a) { // check if treaty will be offered based on trust/behaviour etc
-    return random(1) < 0.001 && a.getID() > 0;
+    return random(1) > 0.001 && a.getID() > 0;
   }
 
   TreatyResponse reviewTreaty(Treaty treaty) {
@@ -301,7 +303,7 @@ class Agent {
   }
 
   ActionMessage decideActionIfInvalid(ActionMessage action) {
-    println("agent " + this.getID() + " tried to perform " + action.type + " but failed. Boosting utility with P=" + this.buyInProb);
+    //println("agent " + this.getID() + " tried to perform " + action.type + " but failed. Boosting utility with P=" + this.buyInProb);
     if (random(1) < this.buyInProb) {
       return this.stockpileUtility();
     }
@@ -316,7 +318,7 @@ class Agent {
 
     if (random(1) > this.buyInProb) {
       willCancelTreaty = true;
-      println("agent " + this.ID + " ended " + t.treatyInfo.treatyName + " with agent " + breaker.getID());
+      //println("agent " + this.ID + " ended " + t.treatyInfo.treatyName + " with agent " + breaker.getID());
     }
 
     this.buyInProb = max(this.buyInProb - 0.05, 0);

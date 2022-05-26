@@ -19,13 +19,14 @@ class Config {
     agents.put(AgentType.MARTYR, 5);
     agents.put(AgentType.EQUITABLE, 5);
     agents.put(AgentType.COOPERATIVE, 5);
+    agents.put(AgentType.BASE, 0);
     this.randomAgents = 0;
     this.agentSize = 30;
     this.investmentPerTurn = 5;
     this.seeInteractionsOnClick = true;
-    this.addAgentCooldown = 100;
+    this.addAgentCooldown = 1000;
     this.replaceUtilityOrDistuv = true;
-    this.startingBuyInProb = 0.25;
+    this.startingBuyInProb = 1.0;
     this.oppositesAttract = false;
   }
 }

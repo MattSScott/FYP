@@ -24,22 +24,22 @@ class Narcissist extends Agent {
     return response;
   }
 
-  ActionMessage decideAction(ArrayList<Agent> nearbyAgents) {
-    float rand = random(1);
+  //ActionMessage decideAction(ArrayList<Agent> nearbyAgents) {
+  //  float rand = random(1);
 
-    if ( rand < 0.33) {
-      return this.stockpileDefence();
-    }
-    if ( rand < 0.85 || nearbyAgents.size() == 0) {
-      return this.stockpileOffence();
-    }
-    Agent weakestAgent = nearbyAgents.get(0);
-    for (int i=1; i<nearbyAgents.size(); i++) {
-      Agent currentAgent = nearbyAgents.get(i);
-      if (currentAgent.defence < weakestAgent.defence) {
-        weakestAgent = currentAgent;
-      }
-    }
-    return this.declareAttack(weakestAgent);
-  }
+  //  if ( rand < 0.33) {
+  //    return this.stockpileDefence();
+  //  }
+  //  if ( rand < 0.85 || nearbyAgents.size() == 0) {
+  //    return this.stockpileOffence();
+  //  }
+  //  Agent weakestAgent = nearbyAgents.get(0);
+  //  for (int i=1; i<nearbyAgents.size(); i++) {
+  //    Agent currentAgent = nearbyAgents.get(i);
+  //    if (currentAgent.defence < weakestAgent.defence) {
+  //      weakestAgent = currentAgent;
+  //    }
+  //  }
+  //  return this.declareAttack(weakestAgent);
+  //}
 }

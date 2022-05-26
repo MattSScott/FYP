@@ -127,15 +127,15 @@ class Server {
   void updateUtility(ActionMessage msg) {
     switch (msg.type) {
     case boostDefence:
-      println("agent " + msg.sender.getID() + " boosted defence from " + msg.sender.defence + " to " +  (msg.sender.defence + msg.quantity));
+      //println("agent " + msg.sender.getID() + " boosted defence from " + msg.sender.defence + " to " +  (msg.sender.defence + msg.quantity));
       msg.sender.defence += msg.quantity;
       break;
     case boostOffence:
-      println("agent " + msg.sender.getID() + " boosted attack from " + msg.sender.offence + " to " +  (msg.sender.offence + msg.quantity));
+      //println("agent " + msg.sender.getID() + " boosted attack from " + msg.sender.offence + " to " +  (msg.sender.offence + msg.quantity));
       msg.sender.offence += msg.quantity;
       break;
     default:
-      println("agent " + msg.sender.getID() + " boosted personal utility from " + msg.sender.utility + " to " +  (msg.sender.utility + msg.quantity));
+      //println("agent " + msg.sender.getID() + " boosted personal utility from " + msg.sender.utility + " to " +  (msg.sender.utility + msg.quantity));
       msg.sender.utility += msg.quantity;
       break;
     }
@@ -149,7 +149,7 @@ class Server {
     float newHP =  max(0, (atk.target.getHP() - dmg));
     atk.attacker.offence -= contrib;
     atk.target.defence = max(atk.target.defence - contrib, 0);
-    println("agent " + atk.target.getID() + "'s health has dropped from " + atk.target.getHP() + " to " + newHP);
+    //println("agent " + atk.target.getID() + "'s health has dropped from " + atk.target.getHP() + " to " + newHP);
     atk.target.setHP(newHP);
     if (newHP == 0) {
       println("==== KILL ====");
@@ -382,7 +382,7 @@ class Server {
       } else {
         this.handleEndOfTurn();
         println();
-        println("NEW TURN");
+        //println("NEW TURN");
         println();
       }
     }

@@ -30,7 +30,7 @@ class AttackInfo {
 
   float damageDealt() {
     float damage =  max(0, this.resourcesContributed - target.defence);
-    println("agent " + this.attacker.getID() + " attacked agent " + this.target.getID() + " dealing " + damage + " damage ");
+    //println("agent " + this.attacker.getID() + " attacked agent " + this.target.getID() + " dealing " + damage + " damage ");
     return damage;
   }
 }
@@ -88,5 +88,9 @@ class AgentProfile {
     }
 
     return allMotives[quadrant];
+  }
+  
+  void Print(){
+    println(this.treatyScore, this.aggression, this.hedonism, "=", this.profileToMotive());
   }
 }
