@@ -6,6 +6,7 @@ class Server {
   private int agentCtr;
   private boolean showActiveNeighbourhoods;
   private Agent activeAgent;
+  private int currTurn;
   Config config;
 
   Server(Config config) {
@@ -19,6 +20,7 @@ class Server {
     this.showActiveNeighbourhoods = false;
     this.activeAgent = null;
     this.initialiseAllAgentProfiles(this.aliveAgents);
+    this.currTurn = 0;
   }
 
 
@@ -125,22 +127,40 @@ class Server {
   }
 
   void updateUtility(ActionMessage msg) {
+
+    JSONData data;
+
     switch (msg.type) {
     case boostDefence:
       //println("agent " + msg.sender.getID() + " boosted defence from " + msg.sender.defence + " to " +  (msg.sender.defence + msg.quantity));
+      data = new JSONData(
+        new String[] { "type", "action", "before", "after" },
+        new String[] { msg.sender.type.name(), "boostDefence", str(msg.sender.defence), str(msg.sender.defence + msg.quantity) }
+        );
       msg.sender.defence += msg.quantity;
       break;
     case boostOffence:
       //println("agent " + msg.sender.getID() + " boosted attack from " + msg.sender.offence + " to " +  (msg.sender.offence + msg.quantity));
+      data = new JSONData(
+        new String[] { "type", "action", "before", "after" },
+        new String[] { msg.sender.type.name(), "boostOffence", str(msg.sender.offence), str(msg.sender.offence + msg.quantity) }
+        );
       msg.sender.offence += msg.quantity;
       break;
     default:
       //println("agent " + msg.sender.getID() + " boosted personal utility from " + msg.sender.utility + " to " +  (msg.sender.utility + msg.quantity));
+      data = new JSONData(
+        new String[] { "type", "action", "before", "after" },
+        new String[] { msg.sender.type.name(), "boostUtility", str(msg.sender.utility), str(msg.sender.utility + msg.quantity) }
+        );
       msg.sender.utility += msg.quantity;
       break;
     }
     msg.sender.pointsToInvest -= msg.quantity;
+
+    logger.Print(msg.sender.getID(), data.formJSON());
   }
+
 
   void resolveAttack(AttackInfo atk) {
     atk.target.receiveAttackNotif(atk);
@@ -312,6 +332,8 @@ class Server {
       a.pointsToInvest += config.investmentPerTurn;
       a.age++;
     }
+    this.currTurn++;
+    logger.endTurn();
   }
 
   AgentType geneticReplacement() {
@@ -359,6 +381,8 @@ class Server {
 
     if (playPause.isPlaying()) {
 
+      logger.startTurn();
+
       if (this.numAliveAgents > 1) {
         genNeighbourhoods(this.aliveAgents, this.numAliveAgents / 2); // have num clusters = floor(1/2 total agents)
         this.runInteractionSession();
@@ -373,12 +397,19 @@ class Server {
         this.initialiseAllAgentProfiles(addedList); // have all agents build profile of it
       }
 
-
-      if (this.numAliveAgents == 1) {
+      if (this.currTurn == config.maxTurns) {
+        println();
+        println("SIMULATION END");
+        println();
+        logger.endSim();
+        noLoop();
+      } else if (this.numAliveAgents == 1) {
         println("agent " + this.aliveAgents.get(0).getID() + " is victorious!");
         println();
         println("SIMULATION END");
         println();
+        logger.endSim();
+        noLoop();
       } else {
         this.handleEndOfTurn();
         println();
