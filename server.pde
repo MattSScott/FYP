@@ -158,7 +158,7 @@ class Server {
     }
     msg.sender.pointsToInvest -= msg.quantity;
 
-    logger.Print(msg.sender.getID(), data.formJSON());
+    logger.Print("Agent " + msg.sender.getID(), data.formJSON());
   }
 
 
@@ -172,11 +172,23 @@ class Server {
     //println("agent " + atk.target.getID() + "'s health has dropped from " + atk.target.getHP() + " to " + newHP);
     atk.target.setHP(newHP);
     if (newHP == 0) {
-      println("==== KILL ====");
-      println("agent " + atk.attacker.getID() + " killed agent " + atk.target.getID() + "! Stealing utility = " + atk.target.utility);
-      println("==== KILL ====");
+      //logger.newEnv("kill");
+      ////println("==== KILL ====");
+      ////println("agent " + atk.attacker.getID() + " killed agent " + atk.target.getID() + "! Stealing utility = " + atk.target.utility);
+      ////println("==== KILL ====");
+      //JSONData data = new JSONData(
+      //  new String[] { "type", "deceased", "utility stolen"},
+      //  new String[] { atk.attacker.type.name(), str(atk.target.getID()), str(atk.target.utility) }
+      //  );
+      //logger.Print(atk.attacker.getID(), data.formJSON());
+      //logger.closeEnv();
       atk.attacker.utility += atk.target.utility;
     }
+    JSONData data = new JSONData(
+      new String[] { "type", "action", "target", "damage", "is_kill" },
+      new String[] { atk.attacker.type.name(), "launchAttack", "Agent " + str(atk.target.getID()), str(dmg), newHP == 0 ? "yes" : "no" }
+      );
+    logger.Print("Agent " + atk.attacker.getID(), data.formJSON());
   }
 
 
@@ -191,6 +203,7 @@ class Server {
   }
 
   void runInteractionSession() {
+    logger.newEnv("actions");
     for (Agent a : this.aliveAgents) {
       if (a.getHP() > 0) { // ensure that agents who die in this turn can't attack before they get removed in the next turn
         ArrayList<Agent> nearby = this.getNearbyAgents(a);
@@ -199,6 +212,7 @@ class Server {
         //a.pointsToInvest += 10;
       }
     }
+    logger.closeEnv();
   }
 
   ArrayList<Agent> getNearbyAgents(Agent a) {

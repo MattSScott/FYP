@@ -27,8 +27,8 @@ class Config {
     this.seeInteractionsOnClick = true;
     this.addAgentCooldown = 1000;
     this.replaceUtilityOrDistuv = true;
-    this.startingBuyInProb = 1.0;
+    this.startingBuyInProb = 0.0;
     this.oppositesAttract = false;
-    this.maxTurns = 100;
+    this.maxTurns = 2;
   }
 }
