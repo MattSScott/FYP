@@ -36,7 +36,7 @@ Logger logger;
 
 void setup() {
   frameRate(10);
-  size(700, 700);
+  size(900, 750);
   config = new Config();
   server = new Server(config);
   flockData = new FlockingData(1, 12.5, 30, 100); //cohesion, alignment, separation, separation distance

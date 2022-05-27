@@ -87,7 +87,7 @@ class Logger {
   void endSim() {
     this.endTurn();
     this.closeEnv();
-    saveJSONObject(this.simulation, "run.json");
+    saveJSONObject(this.simulation, "output/log.json");
   }
 }
 
