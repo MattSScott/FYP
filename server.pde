@@ -440,6 +440,8 @@ class Server {
         ArrayList<Agent> addedList = new ArrayList<Agent>();
         addedList.add(added);
         this.initialiseAllAgentProfiles(addedList); // have all agents build profile of it
+        JSONData newAg = new JSONData( new String[]{"type"}, new String[]{added.type.name()});
+        logger.Print("NEW AGENT", newAg.formJSON());
       }
 
       if (this.currTurn == config.maxTurns) {
