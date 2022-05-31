@@ -12,14 +12,14 @@ class Config {
 
   Config() {
     this.agents = new HashMap<AgentType, Integer>();
-    agents.put(AgentType.NARCISSIST, 1);
-    agents.put(AgentType.ALTRUIST, 1);
-    agents.put(AgentType.COMPETITIVE, 1);
-    agents.put(AgentType.AGGRESSIVE, 1);
-    agents.put(AgentType.INDIVIDUAL, 1);
-    agents.put(AgentType.MARTYR, 1);
-    agents.put(AgentType.EQUITABLE, 1);
-    agents.put(AgentType.COOPERATIVE, 1);
+    agents.put(AgentType.NARCISSIST, 10);
+    agents.put(AgentType.ALTRUIST, 10);
+    agents.put(AgentType.COMPETITIVE, 10);
+    agents.put(AgentType.AGGRESSIVE, 10);
+    agents.put(AgentType.INDIVIDUAL, 10);
+    agents.put(AgentType.MARTYR, 10);
+    agents.put(AgentType.EQUITABLE, 10);
+    agents.put(AgentType.COOPERATIVE, 10);
     agents.put(AgentType.BASE, 0);
     this.randomAgents = 0;
     this.agentSize = 30;
@@ -29,6 +29,6 @@ class Config {
     this.replaceUtilityOrDistuv = true;
     this.startingBuyInProb = 0.0;
     this.oppositesAttract = false;
-    this.maxTurns = 2;
+    this.maxTurns = 50;
   }
 }

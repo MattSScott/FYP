@@ -46,6 +46,14 @@ class Logger {
       this.simulation.setJSONObject(field, json);
     }
   }
+  
+   void PrintArray(String field, JSONArray json) {
+    if (this.currEnvName != null) {
+      this.currEnvironment.setJSONArray(field, json);
+    } else {
+      this.simulation.setJSONArray(field, json);
+    }
+  }
 
   void newEnv(String name) {
     //this.currEnvironment = new JSONObject();

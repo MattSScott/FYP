@@ -158,7 +158,8 @@ class Server {
     }
     msg.sender.pointsToInvest -= msg.quantity;
 
-    logger.Print("Agent " + msg.sender.getID(), data.formJSON());
+    //logger.Print("Agent " + msg.sender.getID(), data.formJSON());
+    logger.Print("action", data.formJSON());
   }
 
 
@@ -182,13 +183,19 @@ class Server {
       //  );
       //logger.Print(atk.attacker.getID(), data.formJSON());
       //logger.closeEnv();
+      JSONData dataKill = new JSONData(
+        new String[] { "attacker", "target", "utility_gained" },
+        new String[] { "Agent " + str(atk.attacker.getID()), "Agent " + str(atk.target.getID()), str(atk.target.utility) }
+        );
+      logger.Print("KILL", dataKill.formJSON());
       atk.attacker.utility += atk.target.utility;
     }
     JSONData data = new JSONData(
-      new String[] { "type", "action", "target", "damage", "is_kill" },
-      new String[] { atk.attacker.type.name(), "launchAttack", "Agent " + str(atk.target.getID()), str(dmg), newHP == 0 ? "yes" : "no" }
+      new String[] { "type", "action", "target", "damage"},
+      new String[] { atk.attacker.type.name(), "launchAttack", "Agent " + str(atk.target.getID()), str(dmg)}
       );
-    logger.Print("Agent " + atk.attacker.getID(), data.formJSON());
+    //logger.Print("Agent " + atk.attacker.getID(), data.formJSON());
+    logger.Print("action", data.formJSON());
   }
 
 
@@ -203,16 +210,25 @@ class Server {
   }
 
   void runInteractionSession() {
-    logger.newEnv("actions");
     for (Agent a : this.aliveAgents) {
       if (a.getHP() > 0) { // ensure that agents who die in this turn can't attack before they get removed in the next turn
+        logger.newEnv("Agent " + str(a.getID()));
         ArrayList<Agent> nearby = this.getNearbyAgents(a);
         this.runTreatySession(a, nearby);
         this.runActionSession(a, nearby);
-        //a.pointsToInvest += 10;
+        this.logAgentStatus(a);
+        logger.closeEnv();
       }
     }
-    logger.closeEnv();
+  }
+
+  void logAgentStatus(Agent a) {
+    String[] stats = new String[]{ "utility", "defence", "offence", "buy_in_prob", "pts_to_invest" };
+    String[] vals = new String[]{ str(a.utility), str(a.defence), str(a.offence), str(a.buyInProb), str(a.pointsToInvest) };
+    
+    JSONData status = new JSONData(stats, vals);
+    
+    logger.Print("status", status.formJSON());
   }
 
   ArrayList<Agent> getNearbyAgents(Agent a) {
@@ -227,15 +243,25 @@ class Server {
 
   void runTreatySession(Agent a, ArrayList<Agent> nearbyAgents) {
     ArrayList<Treaty> proposals = a.offerAllTreaties(nearbyAgents); // receive list of treaty offers for each agent
+    JSONArray propList = new JSONArray();
+    int totalProposals = 0;
     for (Treaty proposal : proposals) {
       Agent receiver = proposal.treatyTo;
       TreatyResponse newTreatyResponse = receiver.reviewTreaty(proposal); // make subject of treaty review it
+      String[] fields = new String[]{"receiver", "response", "type"};
+      String[] vals = new String[]{"Agent " + str(receiver.getID()), "no", proposal.treatyInfo.treatyName};
       a.handleTreatyResponse(newTreatyResponse); // update agent image
       if (newTreatyResponse.response) {
         a.activeTreaties.add(proposal);
         receiver.activeTreaties.add(proposal);
+        vals[1] = "yes";
       }
+      JSONData tty = new JSONData(fields, vals);
+      String data = tty.formJSON();
+      propList.setJSONObject(totalProposals, parseJSONObject(data));
+      totalProposals++;
     }
+    logger.PrintArray("proposals", propList);
   }
 
   void filterExpiredTreaties() {
@@ -272,6 +298,11 @@ class Server {
       if (result) {
         breaker.activeTreaties.remove(t);
         affected.activeTreaties.remove(t);
+        JSONData data = new JSONData(
+          new String[] { "type", "proposer", "accepter"},
+          new String[] { t.treatyInfo.treatyName, "Agent " + str(t.treatyFrom.getID()), "Agent " + str(t.treatyTo.getID())}
+          );
+        logger.Print("treaty_break", data.formJSON());
       }
     }
   }
@@ -427,7 +458,7 @@ class Server {
       } else {
         this.handleEndOfTurn();
         println();
-        //println("NEW TURN");
+        println("TURN " + this.currTurn);
         println();
       }
     }
