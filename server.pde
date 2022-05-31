@@ -6,6 +6,7 @@ class Server {
   private int agentCtr;
   private boolean showActiveNeighbourhoods;
   private Agent activeAgent;
+  private int currTurn;
   Config config;
 
   Server(Config config) {
@@ -19,6 +20,7 @@ class Server {
     this.showActiveNeighbourhoods = false;
     this.activeAgent = null;
     this.initialiseAllAgentProfiles(this.aliveAgents);
+    this.currTurn = 0;
   }
 
 
@@ -125,22 +127,41 @@ class Server {
   }
 
   void updateUtility(ActionMessage msg) {
+
+    JSONData data;
+
     switch (msg.type) {
     case boostDefence:
       //println("agent " + msg.sender.getID() + " boosted defence from " + msg.sender.defence + " to " +  (msg.sender.defence + msg.quantity));
+      data = new JSONData(
+        new String[] { "type", "action", "before", "after" },
+        new String[] { msg.sender.type.name(), "boostDefence", str(msg.sender.defence), str(msg.sender.defence + msg.quantity) }
+        );
       msg.sender.defence += msg.quantity;
       break;
     case boostOffence:
       //println("agent " + msg.sender.getID() + " boosted attack from " + msg.sender.offence + " to " +  (msg.sender.offence + msg.quantity));
+      data = new JSONData(
+        new String[] { "type", "action", "before", "after" },
+        new String[] { msg.sender.type.name(), "boostOffence", str(msg.sender.offence), str(msg.sender.offence + msg.quantity) }
+        );
       msg.sender.offence += msg.quantity;
       break;
     default:
       //println("agent " + msg.sender.getID() + " boosted personal utility from " + msg.sender.utility + " to " +  (msg.sender.utility + msg.quantity));
+      data = new JSONData(
+        new String[] { "type", "action", "before", "after" },
+        new String[] { msg.sender.type.name(), "boostUtility", str(msg.sender.utility), str(msg.sender.utility + msg.quantity) }
+        );
       msg.sender.utility += msg.quantity;
       break;
     }
     msg.sender.pointsToInvest -= msg.quantity;
+
+    //logger.Print("Agent " + msg.sender.getID(), data.formJSON());
+    logger.Print("action", data.formJSON());
   }
+
 
   void resolveAttack(AttackInfo atk) {
     atk.target.receiveAttackNotif(atk);
@@ -152,11 +173,29 @@ class Server {
     //println("agent " + atk.target.getID() + "'s health has dropped from " + atk.target.getHP() + " to " + newHP);
     atk.target.setHP(newHP);
     if (newHP == 0) {
-      println("==== KILL ====");
-      println("agent " + atk.attacker.getID() + " killed agent " + atk.target.getID() + "! Stealing utility = " + atk.target.utility);
-      println("==== KILL ====");
+      //logger.newEnv("kill");
+      ////println("==== KILL ====");
+      ////println("agent " + atk.attacker.getID() + " killed agent " + atk.target.getID() + "! Stealing utility = " + atk.target.utility);
+      ////println("==== KILL ====");
+      //JSONData data = new JSONData(
+      //  new String[] { "type", "deceased", "utility stolen"},
+      //  new String[] { atk.attacker.type.name(), str(atk.target.getID()), str(atk.target.utility) }
+      //  );
+      //logger.Print(atk.attacker.getID(), data.formJSON());
+      //logger.closeEnv();
+      JSONData dataKill = new JSONData(
+        new String[] { "attacker", "target", "utility_gained" },
+        new String[] { "Agent " + str(atk.attacker.getID()), "Agent " + str(atk.target.getID()), str(atk.target.utility) }
+        );
+      logger.Print("KILL", dataKill.formJSON());
       atk.attacker.utility += atk.target.utility;
     }
+    JSONData data = new JSONData(
+      new String[] { "type", "action", "target", "damage"},
+      new String[] { atk.attacker.type.name(), "launchAttack", "Agent " + str(atk.target.getID()), str(dmg)}
+      );
+    //logger.Print("Agent " + atk.attacker.getID(), data.formJSON());
+    logger.Print("action", data.formJSON());
   }
 
 
@@ -173,12 +212,23 @@ class Server {
   void runInteractionSession() {
     for (Agent a : this.aliveAgents) {
       if (a.getHP() > 0) { // ensure that agents who die in this turn can't attack before they get removed in the next turn
+        logger.newEnv("Agent " + str(a.getID()));
         ArrayList<Agent> nearby = this.getNearbyAgents(a);
         this.runTreatySession(a, nearby);
         this.runActionSession(a, nearby);
-        //a.pointsToInvest += 10;
+        this.logAgentStatus(a);
+        logger.closeEnv();
       }
     }
+  }
+
+  void logAgentStatus(Agent a) {
+    String[] stats = new String[]{ "utility", "defence", "offence", "buy_in_prob", "pts_to_invest" };
+    String[] vals = new String[]{ str(a.utility), str(a.defence), str(a.offence), str(a.buyInProb), str(a.pointsToInvest) };
+    
+    JSONData status = new JSONData(stats, vals);
+    
+    logger.Print("status", status.formJSON());
   }
 
   ArrayList<Agent> getNearbyAgents(Agent a) {
@@ -193,15 +243,25 @@ class Server {
 
   void runTreatySession(Agent a, ArrayList<Agent> nearbyAgents) {
     ArrayList<Treaty> proposals = a.offerAllTreaties(nearbyAgents); // receive list of treaty offers for each agent
+    JSONArray propList = new JSONArray();
+    int totalProposals = 0;
     for (Treaty proposal : proposals) {
       Agent receiver = proposal.treatyTo;
       TreatyResponse newTreatyResponse = receiver.reviewTreaty(proposal); // make subject of treaty review it
+      String[] fields = new String[]{"receiver", "response", "type"};
+      String[] vals = new String[]{"Agent " + str(receiver.getID()), "no", proposal.treatyInfo.treatyName};
       a.handleTreatyResponse(newTreatyResponse); // update agent image
       if (newTreatyResponse.response) {
         a.activeTreaties.add(proposal);
         receiver.activeTreaties.add(proposal);
+        vals[1] = "yes";
       }
+      JSONData tty = new JSONData(fields, vals);
+      String data = tty.formJSON();
+      propList.setJSONObject(totalProposals, parseJSONObject(data));
+      totalProposals++;
     }
+    logger.PrintArray("proposals", propList);
   }
 
   void filterExpiredTreaties() {
@@ -238,6 +298,11 @@ class Server {
       if (result) {
         breaker.activeTreaties.remove(t);
         affected.activeTreaties.remove(t);
+        JSONData data = new JSONData(
+          new String[] { "type", "proposer", "accepter"},
+          new String[] { t.treatyInfo.treatyName, "Agent " + str(t.treatyFrom.getID()), "Agent " + str(t.treatyTo.getID())}
+          );
+        logger.Print("treaty_break", data.formJSON());
       }
     }
   }
@@ -312,6 +377,8 @@ class Server {
       a.pointsToInvest += config.investmentPerTurn;
       a.age++;
     }
+    this.currTurn++;
+    logger.endTurn();
   }
 
   AgentType geneticReplacement() {
@@ -359,6 +426,8 @@ class Server {
 
     if (playPause.isPlaying()) {
 
+      logger.startTurn();
+
       if (this.numAliveAgents > 1) {
         genNeighbourhoods(this.aliveAgents, this.numAliveAgents / 2); // have num clusters = floor(1/2 total agents)
         this.runInteractionSession();
@@ -373,16 +442,23 @@ class Server {
         this.initialiseAllAgentProfiles(addedList); // have all agents build profile of it
       }
 
-
-      if (this.numAliveAgents == 1) {
+      if (this.currTurn == config.maxTurns) {
+        println();
+        println("SIMULATION END");
+        println();
+        logger.endSim();
+        noLoop();
+      } else if (this.numAliveAgents == 1) {
         println("agent " + this.aliveAgents.get(0).getID() + " is victorious!");
         println();
         println("SIMULATION END");
         println();
+        logger.endSim();
+        noLoop();
       } else {
         this.handleEndOfTurn();
         println();
-        //println("NEW TURN");
+        println("TURN " + this.currTurn);
         println();
       }
     }

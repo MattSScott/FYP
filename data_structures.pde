@@ -89,8 +89,8 @@ class AgentProfile {
 
     return allMotives[quadrant];
   }
-  
-  void Print(){
+
+  void Print() {
     println(this.treatyScore, this.aggression, this.hedonism, "=", this.profileToMotive());
   }
 }
