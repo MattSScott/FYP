@@ -19,6 +19,7 @@ class Agent {
   float defence;
   float utility;
   protected float buyInProb; // how likely am I to not break treaties
+  protected PVector motiveVector;
   int age;
   boolean showDialogueBox;
   boolean highlighted;
@@ -51,6 +52,7 @@ class Agent {
     this.showDialogueBox = false;
     this.highlighted = false;
     this.buyInProb = config.startingBuyInProb;
+    this.motiveVector = new PVector(0, 0, 0);
   }
 
 
@@ -247,7 +249,7 @@ class Agent {
     }
   }
 
-  void updateAgentProfile(Agent agent, float treatyUpdate, float aggUpdate, float hedUpdate) {
+  void updateAgentProfile(Agent agent, float aggUpdate, float treatyUpdate, float hedUpdate) {
     AgentProfile profile = this.agentProfiles.get(agent);
     profile.aggression = constrain(profile.aggression + aggUpdate, -10, 10);
     profile.treatyScore = constrain(profile.treatyScore + treatyUpdate, -10, 10);
@@ -272,14 +274,20 @@ class Agent {
 
   // ACTION SESSION //
 
-  ActionMessage decideAction(ArrayList<Agent> nearbyAgents) {
+  Agent chooseOpponent(ArrayList<Agent> nearbyAgents) {
 
     if (nearbyAgents.size() > 0) {
-
       int rand = int(random(nearbyAgents.size()));
-      float randAct = random(1);
+      return nearbyAgents.get(rand);
+    }
+    return null;
+  }
 
-      Agent opponent = nearbyAgents.get(rand);
+  ActionMessage decideAction(Agent opponent) {
+
+    if (opponent != null) {
+
+      float randAct = random(1);
 
       ActionType action = compileHawkDoveStrategyBorda(opponent);
 
@@ -350,6 +358,18 @@ class Agent {
     this.updateAgentProfile(atk.attacker, 0, dmg/10.0, 0);
   }
 
+  AgentProfile whoAmI() {
+    PVector dir = this.motiveVector.copy();
+    float magScale = dir.mag();
+    dir.setMag(magScale * this.buyInProb);
+    //println(dir);
+    return new AgentProfile(dir.x, dir.y, dir.z);
+  }
+
+  void processWhoAmI(AgentProfile resp, Agent opponent) {
+    this.updateAgentProfile(opponent, resp.aggression, resp.treatyScore, resp.hedonism);
+  }
+
 
   // FLOCKING //
 
@@ -364,7 +384,10 @@ class Agent {
         }
       }
     }
-    //return new ArrayList<Agent>();
+    
+    if (flockmates.size() > 0) {
+      return flockmates;
+    }
     return allAgents;
   }
 
