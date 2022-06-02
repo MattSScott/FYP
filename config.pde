@@ -29,6 +29,6 @@ class Config {
     this.replaceUtilityOrDistuv = true;
     this.startingBuyInProb = 1.0;
     this.oppositesAttract = false;
-    this.maxTurns = 100;
+    this.maxTurns = 300;
   }
 }

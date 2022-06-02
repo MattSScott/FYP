@@ -284,6 +284,11 @@ class Server {
     if (requestIdentity) {
       a.processWhoAmI(opponent.whoAmI(), opponent);
     }
+
+    //if(opponent != null) {
+    //  a.stateInteracted(opponent);
+    //}
+
     ArrayList<Treaty> treatiesAffected = a.treatiesBroken(action);
 
     if (treatiesAffected.size() != 0) {
@@ -307,7 +312,7 @@ class Server {
           new String[] { "type", "proposer", "accepter"},
           new String[] { t.treatyInfo.treatyName, "Agent " + str(t.treatyFrom.getID()), "Agent " + str(t.treatyTo.getID())}
           );
-        logger.Print("treaty_break", data.formJSON());
+        logger.Print("TREATY BREAK", data.formJSON());
       }
     }
   }
@@ -420,6 +425,43 @@ class Server {
     return AgentType.NARCISSIST;
   }
 
+  void processNewAgent() {
+    Agent added = this.addAgent(this.geneticReplacement());
+    added.initialiseAgentProfiles(this.aliveAgents); // build up profile of all other agents
+    ArrayList<Agent> addedList = new ArrayList<Agent>();
+    addedList.add(added);
+    this.initialiseAllAgentProfiles(addedList); // have all agents build profile of it
+    JSONData newAg = new JSONData( new String[]{"type"}, new String[]{added.type.name()});
+    logger.Print("NEW AGENT", newAg.formJSON());
+  }
+
+
+  float classificationError() {
+    
+    float wrongGuesses = 0;
+    float totalGuesses = 0;
+    
+    for (Agent a1 : this.aliveAgents) {
+      for(Agent a2 : this.aliveAgents) {
+        if(a1 != a2) {
+          AgentProfile prof = a1.agentProfiles.get(a2);
+          if(!prof.hasInteracted()){
+            break;
+          }
+          AgentType guess = prof.profileToMotive();
+          AgentType real = a2.type;
+          if(guess != real) {
+            wrongGuesses++;
+          }
+          totalGuesses++;
+        }
+      }
+    }
+    
+    return wrongGuesses / totalGuesses;
+  }
+
+
   void run() {
 
     if (toggleTreaties.getText() == buttonReturn.ON) {
@@ -427,7 +469,8 @@ class Server {
     }
 
     this.showAgents(playPause.isPlaying());
-
+    
+    text("Classification Error: " + classificationError() * 100 + '%', width-100, 50);
 
     if (playPause.isPlaying()) {
 
@@ -440,13 +483,7 @@ class Server {
 
 
       if (frameCount % config.addAgentCooldown == 0) {
-        Agent added = this.addAgent(this.geneticReplacement());
-        added.initialiseAgentProfiles(this.aliveAgents); // build up profile of all other agents
-        ArrayList<Agent> addedList = new ArrayList<Agent>();
-        addedList.add(added);
-        this.initialiseAllAgentProfiles(addedList); // have all agents build profile of it
-        JSONData newAg = new JSONData( new String[]{"type"}, new String[]{added.type.name()});
-        logger.Print("NEW AGENT", newAg.formJSON());
+        this.processNewAgent();
       }
 
       if (this.currTurn == config.maxTurns) {

@@ -35,7 +35,7 @@ PlayPause playPause;
 Logger logger;
 
 void setup() {
-  frameRate(10);
+  frameRate(20);
   size(900, 750);
   config = new Config();
   server = new Server(config);
