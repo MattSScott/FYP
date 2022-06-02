@@ -63,6 +63,10 @@ class AgentProfile {
     this.treatyScore = tre;
     this.hedonism = hed;
   }
+  
+  boolean hasInteracted() {
+    return this.aggression + this.treatyScore + this.hedonism != 0;
+  }
 
   AgentType profileToMotive() {
 
