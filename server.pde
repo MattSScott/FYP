@@ -279,8 +279,9 @@ class Server {
   void runActionSession(Agent a, ArrayList<Agent> nearbyAgents) {
     Agent opponent = a.chooseOpponent(nearbyAgents);
     ActionMessage action = a.decideAction(opponent);
+    boolean requestIdentity = a.requestWhoAmI(opponent);
 
-    if (opponent != null) {
+    if (requestIdentity) {
       a.processWhoAmI(opponent.whoAmI(), opponent);
     }
     ArrayList<Treaty> treatiesAffected = a.treatiesBroken(action);
