@@ -355,12 +355,12 @@ class Agent {
 
   void receiveAttackNotif(AttackInfo atk) {
     float dmg = atk.damageDealt();
-    this.updateAgentProfile(atk.attacker, 0, dmg/10.0, 0);
+    this.updateAgentProfile(atk.attacker, dmg/10.0, 0, 0);
   }
-  
+
   float applyNoisePred(float axis) {
     float vae = (1 - this.buyInProb) * 3;
-    float mean = axis / 10;
+    float mean = axis / 17.3;
     float x = randomGaussian();
     x *= vae;
     x += mean;
@@ -371,20 +371,21 @@ class Agent {
     PVector dir = this.motiveVector.copy();
     float magScale = dir.mag();
     dir.setMag(magScale * this.buyInProb);
-    //println(dir);
     return new AgentProfile(this.applyNoisePred(dir.x), this.applyNoisePred(dir.y), this.applyNoisePred(dir.z));
   }
-  
+
   boolean requestWhoAmI(Agent opponent) {
-    
-    if(opponent == null) {
+
+    if (opponent == null) {
       return false;
     }
-    
+
     AgentProfile oppData = this.agentProfiles.get(opponent);
     float motiveToVal = abs(oppData.aggression) + abs(oppData.treatyScore) + abs(oppData.hedonism);
-    
-    return motiveToVal < 25; // for 10x10x10 system, 5x5x5 is '50%' sure
+
+    //println(oppData.profileToMotive() == opponent.type);
+
+    return motiveToVal < 15; // for 10x10x10 system, 5x5x5 is '50%' sure
   }
 
   void processWhoAmI(AgentProfile resp, Agent opponent) {
@@ -405,7 +406,7 @@ class Agent {
         }
       }
     }
-    
+
     if (flockmates.size() > 0) {
       return flockmates;
     }
