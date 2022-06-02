@@ -4,6 +4,7 @@ class Individual extends Agent {
     this.type = AgentType.INDIVIDUAL;
     this.col = color(0, 0, 255);
     this.opposite = AgentType.MARTYR;
+    this.motiveVector = new PVector(-10, -10, 10);
   }
 
 

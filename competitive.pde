@@ -4,6 +4,7 @@ class Competitive extends Agent {
     this.type = AgentType.COMPETITIVE;
     this.col = color(255, 255, 255);
     this.opposite = AgentType.EQUITABLE;
+    this.motiveVector = new PVector(10, 10, 10);
   }
 
 

@@ -225,9 +225,9 @@ class Server {
   void logAgentStatus(Agent a) {
     String[] stats = new String[]{ "utility", "defence", "offence", "buy_in_prob", "pts_to_invest" };
     String[] vals = new String[]{ str(a.utility), str(a.defence), str(a.offence), str(a.buyInProb), str(a.pointsToInvest) };
-    
+
     JSONData status = new JSONData(stats, vals);
-    
+
     logger.Print("status", status.formJSON());
   }
 
@@ -277,8 +277,13 @@ class Server {
 
 
   void runActionSession(Agent a, ArrayList<Agent> nearbyAgents) {
-    ActionMessage action = a.decideAction(nearbyAgents);
+    Agent opponent = a.chooseOpponent(nearbyAgents);
+    ActionMessage action = a.decideAction(opponent);
+    boolean requestIdentity = a.requestWhoAmI(opponent);
 
+    if (requestIdentity) {
+      a.processWhoAmI(opponent.whoAmI(), opponent);
+    }
     ArrayList<Treaty> treatiesAffected = a.treatiesBroken(action);
 
     if (treatiesAffected.size() != 0) {

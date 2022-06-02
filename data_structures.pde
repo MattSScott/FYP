@@ -58,6 +58,11 @@ class AgentProfile {
     this.treatyScore = 0;
     this.hedonism = 0;
   }
+  AgentProfile(float agg, float tre, float hed) {
+    this.aggression = agg;
+    this.treatyScore = tre;
+    this.hedonism = hed;
+  }
 
   AgentType profileToMotive() {
 

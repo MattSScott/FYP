@@ -4,6 +4,7 @@ class Aggressive extends Agent {
     this.type = AgentType.AGGRESSIVE;
     this.col = color(0, 255, 255);
     this.opposite = AgentType.ALTRUIST;
+    this.motiveVector = new PVector(10, -10, 10);
   }
 
 

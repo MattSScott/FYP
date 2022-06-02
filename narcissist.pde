@@ -4,6 +4,7 @@ class Narcissist extends Agent {
     this.type = AgentType.NARCISSIST;
     this.col = color(255, 0, 0);
     this.opposite = AgentType.COOPERATIVE;
+    this.motiveVector = new PVector(10, -10, -10);
   }
 
 
