@@ -25,8 +25,4 @@ class Cooperative extends Agent {
     }
     return response;
   }
-
-  //ActionMessage decideAction(ArrayList<Agent> nearbyAgents) {
-  //  return this.stockpileUtility();
-  //}
 }
