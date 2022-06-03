@@ -66,20 +66,6 @@ class TreatyInfo {
   }
 }
 
-//class TreatyVarCategoryPair {
-//  TreatyVariable tv;
-//  ActionType[] category;
-//  TreatyVarCategoryPair(TreatyVariable tv, ActionType[] category){
-//    this.tv = tv;
-//    this.category = category;
-//  }
-//}
-
-
-//dependency map:
-
-//actiontype : treatyVar
-
 
 //set of treaties that can be proposed
 final TreatyInfo[] globalTreatyCache = new TreatyInfo[]{

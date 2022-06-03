@@ -30,11 +30,6 @@ class Logger {
   }
 
   void startTurn() {
-    //this.currTurn = new JSONObject();
-    //this.currEnvironment = new JSONObject();
-    //this.currEnvName = null;
-    //this.envNames = new ArrayList<String>();
-    //this.envList = new ArrayList<JSONObject>();
     this.newEnv("Turn " + str(this.turn));
   }
 
@@ -46,8 +41,8 @@ class Logger {
       this.simulation.setJSONObject(field, json);
     }
   }
-  
-   void PrintArray(String field, JSONArray json) {
+
+  void PrintArray(String field, JSONArray json) {
     if (this.currEnvName != null) {
       this.currEnvironment.setJSONArray(field, json);
     } else {
@@ -84,11 +79,7 @@ class Logger {
   }
 
   void endTurn() {
-    //println(this.currEnvironment);
-
     this.closeEnv();
-    //String turnFmt = this.turn < 10 ? "0" + str(this.turn) : str(this.turn);
-    //this.simulation.setJSONObject("Turn " + turnFmt, this.currTurn);
     this.turn++;
   }
 

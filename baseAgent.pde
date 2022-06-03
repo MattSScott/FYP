@@ -68,9 +68,9 @@ class Agent {
     return this.HP;
   }
 
-  //PVector getPos() {
-  //  return this.pos.copy();
-  //}
+  PVector getPos() {
+    return this.pos.copy();
+  }
 
   PVector getVelocity() {
     return this.velocity.copy();
@@ -95,39 +95,14 @@ class Agent {
     }
   }
 
-  //void moveRandom() {
-  //  PVector mov = new PVector( random(-50.0, 50.0), random(-50.0, 50.0) );
-  //  this.pos.add(mov);
-  //  this.agentConstrain();
-  //}
-
-  //void moveCalculated() {
-  //  if (dist(this.pos.x, this.pos.y, this.target.x, this.target.y) <= 5 ) {
-  //    this.target = new PVector( random(width), random(height) );
-  //    this.velocity = this.calculateVelocity(this.target.copy());
-  //  }
-  //  this.pos.add(velocity);
-  //  //println(this.pos, this.target);
-  //  this.agentConstrain();
-  //}
-
   void flock(ArrayList<Agent> allAgents) {
     ArrayList<Agent> boids = this.filterAgentsForFlocking(allAgents);
     this.velocity.add(this.calcFlock(boids)).mult(0.75);
     this.pos.add(this.velocity);
     this.agentConstrain();
-    //println(this.velocity);
-  }
-
-  PVector calculateVelocity(PVector newPos) {
-    PVector newDir = newPos.sub(this.pos);
-    newDir.mult(speed/150.0);
-    return newDir;
   }
 
   void drawAgent(buttonReturn s) {
-
-    //float size;
 
     switch (s) {
     case UTILITY:
@@ -290,7 +265,7 @@ class Agent {
       float randAct = random(1);
 
       ActionType action = compileHawkDoveStrategyBorda(opponent);
-
+      
       if (randAct < 0.25) {
         return this.stockpileUtility();
       } else if (randAct < 0.5) {
@@ -322,7 +297,7 @@ class Agent {
     Agent breaker = this.findTreatyWith(t);
     boolean willCancelTreaty = false;
 
-    this.updateAgentProfile(breaker, -2, 3, 0);
+    this.updateAgentProfile(breaker, 3, -2, 0);
 
     if (random(1) > this.buyInProb) {
       willCancelTreaty = true;
@@ -355,7 +330,7 @@ class Agent {
 
   void receiveAttackNotif(AttackInfo atk) {
     float dmg = atk.damageDealt();
-    this.updateAgentProfile(atk.attacker, dmg/10.0, 0, 0);
+    this.updateAgentProfile(atk.attacker, dmg/10.0, 0, -dmg/10.0);
   }
 
   float applyNoisePred(float axis) {

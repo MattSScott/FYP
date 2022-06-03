@@ -13,15 +13,15 @@ void genNeighbourhoods(ArrayList<Agent> agents, int n_clusters) {
   }
 
   for (int i=0; i<centers.length; i++) {
-    centers[i] = agents.get(chosenPoints[i]).pos;
+    centers[i] = agents.get(chosenPoints[i]).getPos();
   }
 
   while (true) {
     for (int i=0; i<agents.size(); i++) {
-      agents.get(i).minDistanceToNeighbourhood = agents.get(i).pos.dist(centers[0]);
+      agents.get(i).minDistanceToNeighbourhood = agents.get(i).getPos().dist(centers[0]);
       agents.get(i).neighbourhood = 0;
       for (int j=1; j<centers.length; j++) {
-        float currDist = agents.get(i).pos.dist(centers[j]);
+        float currDist = agents.get(i).getPos().dist(centers[j]);
         if (currDist < agents.get(i).minDistanceToNeighbourhood) {
           agents.get(i).minDistanceToNeighbourhood = currDist;
           agents.get(i).neighbourhood = j;
@@ -34,11 +34,11 @@ void genNeighbourhoods(ArrayList<Agent> agents, int n_clusters) {
       int pointsPerCluster = 0;
       for (int j=0; j<agents.size(); j++) {
         if (agents.get(j).neighbourhood == i) {
-          newCenters[i].add(agents.get(j).pos);
+          newCenters[i].add(agents.get(j).getPos());
           pointsPerCluster++;
         }
       }
-      newCenters[i].div(pointsPerCluster);
+      newCenters[i].div(max(pointsPerCluster, 1));
     }
     boolean noChange = true;
     for (int i=0; i<newCenters.length; i++) {
@@ -52,14 +52,4 @@ void genNeighbourhoods(ArrayList<Agent> agents, int n_clusters) {
     }
     centers = newCenters;
   }
-  //for (Point p : points) {
-  //  float newCol = map(p.cluster, 0, n_clusters-1, 0, 255);
-  //  fill(newCol, 50, 50);
-  //  p.show();
-  //}
-
-  //for (PVector centroid : centers) {
-  //  fill(0, 255, 0);
-  //  ellipse(centroid.x, centroid.y, 10, 10);
-  //}
 }

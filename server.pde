@@ -214,7 +214,9 @@ class Server {
       if (a.getHP() > 0) { // ensure that agents who die in this turn can't attack before they get removed in the next turn
         logger.newEnv("Agent " + str(a.getID()));
         ArrayList<Agent> nearby = this.getNearbyAgents(a);
-        this.runTreatySession(a, nearby);
+        if (this.config.allowTreaties) {
+          this.runTreatySession(a, nearby);
+        }
         this.runActionSession(a, nearby);
         this.logAgentStatus(a);
         logger.closeEnv();
@@ -348,8 +350,6 @@ class Server {
       a.drawAgent(toggleActionButton.getText());
       this.highlightAgent(a);
 
-      //a.moveRandom();
-      //a.moveCalculated();
       if (playing) {
         a.flock(this.aliveAgents);
       }
@@ -421,8 +421,7 @@ class Server {
       }
     }
 
-    // default return
-    return AgentType.NARCISSIST;
+    return AgentType.NARCISSIST; // default return
   }
 
   void processNewAgent() {
@@ -437,28 +436,28 @@ class Server {
 
 
   float classificationError() {
-    
+
     float wrongGuesses = 0;
     float totalGuesses = 0;
-    
+
     for (Agent a1 : this.aliveAgents) {
-      for(Agent a2 : this.aliveAgents) {
-        if(a1 != a2) {
+      for (Agent a2 : this.aliveAgents) {
+        if (a1 != a2) {
           AgentProfile prof = a1.agentProfiles.get(a2);
-          if(!prof.hasInteracted()){
+          if (!prof.hasInteracted()) {
             break;
           }
           AgentType guess = prof.profileToMotive();
           AgentType real = a2.type;
-          if(guess != real) {
+          if (guess != real) {
             wrongGuesses++;
           }
           totalGuesses++;
         }
       }
     }
-    
-    return wrongGuesses / totalGuesses;
+
+    return totalGuesses > 0 ? wrongGuesses / totalGuesses : 0;
   }
 
 
@@ -469,7 +468,7 @@ class Server {
     }
 
     this.showAgents(playPause.isPlaying());
-    
+
     text("Classification Error: " + classificationError() * 100 + '%', width-100, 50);
 
     if (playPause.isPlaying()) {
