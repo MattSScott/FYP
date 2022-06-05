@@ -191,7 +191,7 @@ class Agent {
   }
 
   boolean willOfferTreaty(Agent a) { // check if treaty will be offered based on trust/behaviour etc
-    return random(1) > 0.001 && a.getID() > 0;
+    return random(1) < 0.001 && a.getID() > 0;
   }
 
   TreatyResponse reviewTreaty(Treaty treaty) {
@@ -203,7 +203,7 @@ class Agent {
   }
 
   boolean isDuplicateTreaty(Treaty t1, Treaty t2) {
-    return (t1.treatyTo == t2.treatyTo && t1.treatyFrom == t2.treatyFrom) || (t1.treatyTo == t2.treatyFrom && t1.treatyFrom == t2.treatyTo) && t1.treatyInfo.treatyName == t2.treatyInfo.treatyName; // a treaty of (1,0,X) = (0,1,X)
+    return (this.findTreatyWith(t1) == this.findTreatyWith(t2)) && t1.treatyInfo.treatyName == t2.treatyInfo.treatyName; // a treaty of (1,0,X) = (0,1,X)
   }
 
 
