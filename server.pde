@@ -115,13 +115,13 @@ class Server {
     for (Agent a : this.aliveAgents) {
       ArrayList<Treaty> setOfTreaties = a.activeTreaties;
       for (Treaty t : setOfTreaties) {
-        Agent agentFrom = t.treatyFrom;
-        if (a != agentFrom) { // AGENT 1 MAKES TREATY (0, 1, NICE), THEN VISUALISES 1,1. THIS AVOIDS THIS BUG
+        Agent agentFrom = a.findTreatyWith(t);
+        //if (a != agentFrom) { // AGENT 1 MAKES TREATY (0, 1, NICE), THEN VISUALISES 1,1. THIS AVOIDS THIS BUG
           PVector midpoint = new PVector(0.5*(a.pos.x + agentFrom.pos.x), 0.5*(a.pos.y + agentFrom.pos.y));
           fill(0);
           this.drawLine(agentFrom.pos, a.pos);
           text(t.treatyInfo.treatyName, midpoint.x, midpoint.y);
-        }
+        //}
       }
     }
   }
