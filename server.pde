@@ -401,7 +401,7 @@ class Server {
     for (Agent a : this.aliveAgents) {
       a.pointsToInvest += config.investmentPerTurn;
       a.age++;
-      a.buyInProb = min(1, a.buyInProb + 0.001);
+      a.buyInProb = min(1, a.buyInProb + 0.01);
     }
     this.currTurn++;
     logger.endTurn();

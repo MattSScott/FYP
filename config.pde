@@ -13,7 +13,7 @@ class Config {
 
   Config() {
     this.agents = new HashMap<AgentType, Integer>();
-    agents.put(AgentType.NARCISSIST, 0);
+    agents.put(AgentType.NARCISSIST, 5);
     agents.put(AgentType.ALTRUIST, 5);
     agents.put(AgentType.COMPETITIVE, 0);
     agents.put(AgentType.AGGRESSIVE, 3);
@@ -30,7 +30,7 @@ class Config {
     this.replaceUtilityOrDistuv = true;
     this.startingBuyInProb = 0.0;
     this.oppositesAttract = false;
-    this.maxTurns = 150;
+    this.maxTurns = 350;
     this.allowTreaties = true;
   }
 }

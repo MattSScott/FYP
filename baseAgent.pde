@@ -330,8 +330,8 @@ class Agent {
 
   void receiveAttackNotif(AttackInfo atk) {
     float dmg = atk.damageDealt();
-    this.updateAgentProfile(atk.attacker, dmg/10.0, 0, -dmg/10.0);
-    this.buyInProb = max(this.buyInProb - 0.01, 0);
+    //this.updateAgentProfile(atk.attacker, dmg/10.0, 0, -dmg/10.0);
+    this.buyInProb = max(this.buyInProb - dmg/100.0, 0);
   }
 
   float applyNoisePred(float axis) {
