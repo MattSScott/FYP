@@ -17,9 +17,9 @@ class Config {
     agents.put(AgentType.ALTRUIST, 1);
     agents.put(AgentType.COMPETITIVE, 0);
     agents.put(AgentType.AGGRESSIVE, 0);
-    agents.put(AgentType.INDIVIDUAL, 3);
+    agents.put(AgentType.INDIVIDUAL, 1);
     agents.put(AgentType.MARTYR, 0);
-    agents.put(AgentType.EQUITABLE, 4);
+    agents.put(AgentType.EQUITABLE, 0);
     agents.put(AgentType.COOPERATIVE, 0);
     agents.put(AgentType.BASE, 0);
     this.randomAgents = 0;

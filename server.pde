@@ -435,6 +435,12 @@ class Server {
     ArrayList<Agent> addedList = new ArrayList<Agent>();
     addedList.add(added);
     this.initialiseAllAgentProfiles(addedList); // have all agents build profile of it
+    for (Agent a : this.aliveAgents) {
+      if (a != added) {
+        this.treatyButtons.add(new TreatyButton(a, added));
+      }
+    }
+
     JSONData newAg = new JSONData( new String[]{"type"}, new String[]{added.type.name()});
     logger.Print("NEW AGENT", newAg.formJSON());
   }
