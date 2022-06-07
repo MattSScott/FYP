@@ -15,7 +15,7 @@ class StrategyProfiler {
     float mutualAgg = 0.5 * (this.value - this.cost);
     float mutualDef = 0.5 * this.value;
 
-    return new float[][]{ {mutualAgg, -mutualAgg}, {this.value, 0}, {0, this.value}, {mutualDef, mutualDef} };
+    return new float[][]{ {mutualAgg, mutualAgg}, {this.value, 0}, {0, this.value}, {mutualDef, mutualDef} };
   }
 
   int[] scoresToPreferenceOrder() {

@@ -282,6 +282,15 @@ class Server {
     }
   }
 
+  void filterExpiredButtons() {
+    for (int i=this.treatyButtons.size() - 1; i>=0; i--) {
+      TreatyButton button =this.treatyButtons.get(i);
+      if (button.a1.getHP() == 0 || button.a2.getHP() == 0) {
+        this.treatyButtons.remove(i);
+      }
+    }
+  }
+
 
   void runActionSession(Agent a, ArrayList<Agent> nearbyAgents) {
     Agent opponent = a.chooseOpponent(nearbyAgents);
@@ -388,9 +397,11 @@ class Server {
   void handleEndOfTurn() {
     this.filterDeadAgents();
     this.filterExpiredTreaties();
+    this.filterExpiredButtons();
     for (Agent a : this.aliveAgents) {
       a.pointsToInvest += config.investmentPerTurn;
       a.age++;
+      a.buyInProb = min(1, a.buyInProb + 0.001);
     }
     this.currTurn++;
     logger.endTurn();

@@ -11,7 +11,7 @@ class Agent {
   int neighbourhood; // the other agents I'm close enough to interact with
   float minDistanceToNeighbourhood; // closest I am to other lads
   ArrayList<Treaty> activeTreaties; // what propositions have been made to me so far
-  private float speed;
+  //private float speed;
   private PVector velocity; //destination used for smooth agent movement
   //private PVector target;
   float pointsToInvest;
@@ -37,7 +37,7 @@ class Agent {
     this.neighbourhood = -1;
     this.activeTreaties = new ArrayList<Treaty>();
     this.HP = 100;
-    this.speed = random(1, 6);
+    //this.speed = random(1, 6);
     //this.speed = 0;
     //this.target = new PVector( random(width), random(height) );
     //this.velocity = this.calculateVelocity(target.copy());
@@ -265,7 +265,7 @@ class Agent {
       float randAct = random(1);
 
       ActionType action = compileHawkDoveStrategyBorda(opponent);
-      
+
       if (randAct < 0.25) {
         return this.stockpileUtility();
       } else if (randAct < 0.5) {
@@ -331,6 +331,7 @@ class Agent {
   void receiveAttackNotif(AttackInfo atk) {
     float dmg = atk.damageDealt();
     this.updateAgentProfile(atk.attacker, dmg/10.0, 0, -dmg/10.0);
+    this.buyInProb = max(this.buyInProb - 0.01, 0);
   }
 
   float applyNoisePred(float axis) {
@@ -345,7 +346,7 @@ class Agent {
   AgentProfile whoAmI() {
     PVector dir = this.motiveVector.copy();
     float magScale = dir.mag();
-    dir.setMag(magScale * this.buyInProb);
+    dir.setMag(magScale * ((this.buyInProb * 2.0) - 1.0));
     return new AgentProfile(this.applyNoisePred(dir.x), this.applyNoisePred(dir.y), this.applyNoisePred(dir.z));
   }
 
