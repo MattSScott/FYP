@@ -336,7 +336,7 @@ class Agent {
 
   float applyNoisePred(float axis) {
     float vae = (1 - this.buyInProb) * 3;
-    float mean = axis / 17.3;
+    float mean = axis / 10.0;
     float x = randomGaussian();
     x *= vae;
     x += mean;
