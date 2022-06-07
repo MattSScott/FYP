@@ -13,11 +13,11 @@ class Config {
 
   Config() {
     this.agents = new HashMap<AgentType, Integer>();
-    agents.put(AgentType.NARCISSIST, 1);
+    agents.put(AgentType.NARCISSIST, 0);
     agents.put(AgentType.ALTRUIST, 1);
     agents.put(AgentType.COMPETITIVE, 0);
     agents.put(AgentType.AGGRESSIVE, 0);
-    agents.put(AgentType.INDIVIDUAL, 0);
+    agents.put(AgentType.INDIVIDUAL, 1);
     agents.put(AgentType.MARTYR, 0);
     agents.put(AgentType.EQUITABLE, 0);
     agents.put(AgentType.COOPERATIVE, 0);
