@@ -70,4 +70,10 @@ void mousePressed() {
     playPause.toggle();
   }
   server.toggleAgentDialogue();
+  
+  for(TreatyButton button : server.treatyButtons) {
+    if(button.overButton()){
+      button.toggle();
+    }
+  }
 }

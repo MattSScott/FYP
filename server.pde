@@ -7,20 +7,22 @@ class Server {
   private boolean showActiveNeighbourhoods;
   private Agent activeAgent;
   private int currTurn;
+  ArrayList<TreatyButton> treatyButtons;
   Config config;
 
   Server(Config config) {
     this.config = config;
+    this.agentCtr = 0;
     this.agentSize = config.agentSize;
     this.totalAgents = new ArrayList<Agent>();
     this.aliveAgents = new ArrayList<Agent>();
     this.initialiseAgents();
     this.numAliveAgents = this.aliveAgents.size();
-    this.agentCtr = 0;
     this.showActiveNeighbourhoods = false;
     this.activeAgent = null;
     this.initialiseAllAgentProfiles(this.aliveAgents);
     this.currTurn = 0;
+    this.treatyButtons = this.createAllButtons();
   }
 
 
@@ -90,6 +92,18 @@ class Server {
     }
   }
 
+  ArrayList<TreatyButton> createAllButtons() {
+    ArrayList<TreatyButton> buttons = new ArrayList<TreatyButton>();
+    for (int i=0; i<this.aliveAgents.size(); i++) {
+      for (int j=i+1; j<this.aliveAgents.size(); j++) {
+        Agent a1 = this.aliveAgents.get(i);
+        Agent a2 = this.aliveAgents.get(j);
+        buttons.add(new TreatyButton(a1, a2));
+      }
+    }
+    return buttons;
+  }
+
   void filterDeadAgents() {
     for (int i=this.aliveAgents.size() - 1; i>=0; i--) {
       Agent curr = this.aliveAgents.get(i);
@@ -112,17 +126,8 @@ class Server {
   }
 
   void visualiseTreaties() {
-    for (Agent a : this.aliveAgents) {
-      ArrayList<Treaty> setOfTreaties = a.activeTreaties;
-      for (Treaty t : setOfTreaties) {
-        Agent agentFrom = a.findTreatyWith(t);
-        //if (a != agentFrom) { // AGENT 1 MAKES TREATY (0, 1, NICE), THEN VISUALISES 1,1. THIS AVOIDS THIS BUG
-          PVector midpoint = new PVector(0.5*(a.pos.x + agentFrom.pos.x), 0.5*(a.pos.y + agentFrom.pos.y));
-          fill(0);
-          this.drawLine(agentFrom.pos, a.pos);
-          text(t.treatyInfo.treatyName, midpoint.x, midpoint.y);
-        //}
-      }
+    for (TreatyButton button : this.treatyButtons) {
+      button.show();
     }
   }
 

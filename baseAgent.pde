@@ -203,7 +203,7 @@ class Agent {
   }
 
   boolean isDuplicateTreaty(Treaty t1, Treaty t2) {
-    return (this.findTreatyWith(t1) == this.findTreatyWith(t2)) && t1.treatyInfo.treatyName == t2.treatyInfo.treatyName; // a treaty of (1,0,X) = (0,1,X)
+    return (this.findTreatyWith(t1) == this.findTreatyWith(t2)) && (t1.treatyInfo.treatyName == t2.treatyInfo.treatyName); // a treaty of (1,0,X) = (0,1,X)
   }
 
 

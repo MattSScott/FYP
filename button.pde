@@ -19,6 +19,12 @@ class Button {
     this.text = buttonReturn.NONE;
   }
 
+  Button() {
+    this.w = 70;
+    this.h = 20;
+    this.text = buttonReturn.NONE;
+  }
+
   void show() {
     fill(112);
     rectMode(CENTER);
@@ -74,7 +80,6 @@ class ShowTreatiesButton extends ToggleActionButton {
 
 class PlayPause extends Button {
   boolean playing;
-  float w;
   PlayPause(PVector pos) {
     super(pos);
     this.playing = true;
@@ -107,6 +112,82 @@ class PlayPause extends Button {
       float y3 = this.pos.y;
 
       triangle(x1+5, y1, x2+5, y2, x3+5, y3);
+    }
+  }
+}
+
+
+class TreatyButton extends Button {
+  ArrayList<String> treaties;
+  boolean rendering;
+  Agent a1;
+  Agent a2;
+  TreatyButton(Agent ag1, Agent ag2) {
+    super();
+    this.treaties = new ArrayList<String>();
+    this.rendering = false;
+    this.w = 10;
+    this.h = 10;
+    this.a1 = ag1;
+    this.a2 = ag2;
+    this.pos = this.calcPos();
+  }
+
+  PVector calcPos() {
+    return new PVector(0.5*(a1.pos.x + a2.pos.x), 0.5*(a1.pos.y + a2.pos.y));
+  }
+
+  ArrayList<String> findTreaties() {
+    ArrayList<Treaty> ts = this.a1.activeTreaties;
+    ArrayList<String> printouts = new ArrayList<String>();
+
+    for (Treaty t : ts) {
+      Agent treatyWith = a1.findTreatyWith(t);
+      if (treatyWith == this.a2) {
+        printouts.add(t.treatyInfo.treatyName);
+      }
+    }
+    return printouts;
+  }
+
+  void drawTreatyBox() {
+    int spacing = 15;
+    float rectH = this.treaties.size() * spacing;
+    float rectW = 130;
+    float topLeftY = this.pos.y - this.w - rectH;
+
+    // Draw outer text box //
+    rectMode(CENTER);
+    noFill();
+    stroke(0);
+    rect(this.pos.x, this.pos.y - this.w - rectH/2, rectW, rectH);
+
+    // Draw text //
+    fill(0);
+    textAlign(CENTER, CENTER);
+    for (int i=0; i<this.treaties.size(); i++) {
+      String name = this.treaties.get(i);
+      text(name, this.pos.x, topLeftY + i * spacing + 5);
+    }
+  }
+
+  void toggle() {
+    this.rendering = !this.rendering;
+  }
+
+  void show() {
+    fill(0);
+    this.treaties = this.findTreaties();
+    this.pos = this.calcPos();
+    if (this.treaties.size() > 0) {
+      line(a1.pos.x, a1.pos.y, a2.pos.x, a2.pos.y);
+      if (this.rendering) {
+        this.drawTreatyBox();
+        fill(255, 0, 0);
+      } else {
+        fill(0, 255, 0);
+      }
+      ellipse(this.pos.x, this.pos.y, this.w, this.w);
     }
   }
 }
