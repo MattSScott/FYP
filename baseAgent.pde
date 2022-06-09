@@ -7,13 +7,10 @@ class Agent {
   protected color col; // goody or baddie
   private int ID; // what's my name
   private float HP; //current HP
-  boolean alive; // am I alive or dead
   int neighbourhood; // the other agents I'm close enough to interact with
   float minDistanceToNeighbourhood; // closest I am to other lads
   ArrayList<Treaty> activeTreaties; // what propositions have been made to me so far
-  //private float speed;
   private PVector velocity; //destination used for smooth agent movement
-  //private PVector target;
   float pointsToInvest;
   float offence;
   float defence;
@@ -33,16 +30,10 @@ class Agent {
     this.baseSize = size;
     this.currSize = size;
     this.col = color(0, 0, 0);
-    this.alive = true;
     this.neighbourhood = -1;
     this.activeTreaties = new ArrayList<Treaty>();
     this.HP = 100;
-    //this.speed = random(1, 6);
-    //this.speed = 0;
-    //this.target = new PVector( random(width), random(height) );
-    //this.velocity = this.calculateVelocity(target.copy());
     this.velocity = new PVector();
-    //this.velocity = new PVector( random(-10, 10), random(-10, 10) );
     this.offence = 5;
     this.defence = 5;
     this.utility = 0;
