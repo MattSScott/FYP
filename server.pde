@@ -482,6 +482,15 @@ class Server {
     return totalGuesses > 0 ? wrongGuesses / totalGuesses : 0;
   }
 
+  float avgBuyIn() {
+    float avg = 0;
+
+    for (Agent a : this.aliveAgents) {
+      avg += a.buyInProb;
+    }
+    return avg / this.aliveAgents.size();
+  }
+
 
   void run() {
 
@@ -491,7 +500,8 @@ class Server {
 
     this.showAgents(playPause.isPlaying());
 
-    text("Classification Error: " + classificationError() * 100 + '%', width-100, 50);
+    text("Classification Error: " + this.classificationError() * 100 + '%', width-100, 50);
+    text("Average P(BuyIn): " + this.avgBuyIn() * 100 + '%', width-100, 70);
 
     if (playPause.isPlaying()) {
 

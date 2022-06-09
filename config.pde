@@ -28,7 +28,7 @@ class Config {
     this.seeInteractionsOnClick = true;
     this.addAgentCooldown = 50;
     this.replaceUtilityOrDistuv = true;
-    this.startingBuyInProb = 0.0;
+    this.startingBuyInProb = 0.85;
     this.oppositesAttract = false;
     this.maxTurns = 350;
     this.allowTreaties = true;
