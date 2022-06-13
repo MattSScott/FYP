@@ -490,7 +490,7 @@ class Agent {
       if (cache.containsKey(v)) {
         output[i] = cache.get(v);
       } else {
-        output[i] = -1;
+        output[i] = 0;
       }
     }
     output[reqVars.length] = 1;
@@ -506,9 +506,6 @@ class Agent {
       }
       for (int i=0; i<R.length; i++) {
         int j = i % L.length;
-        if (L[j] == -1) {   // variable not found - skip check
-          continue;
-        }
         sum += L[j] * R[i];
         if ((i+1) % L.length == 0 && i != 0) {
           int augInd = floor(i / L.length);

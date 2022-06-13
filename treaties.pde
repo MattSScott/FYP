@@ -70,7 +70,7 @@ class TreatyInfo {
 //set of treaties that can be proposed
 final TreatyInfo[] globalTreatyCache = new TreatyInfo[]{
 
-  new TreatyInfo("niceTreaty",
+  new TreatyInfo("noUtil",
   "a nice treaty",
   new TreatyVariable[]{TreatyVariable.AGE},
   new float[]{1, -1, 1, -3},

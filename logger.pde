@@ -20,12 +20,6 @@ class Logger {
   void initJSON() {
     this.newEnv("Config");
     this.closeEnv();
-    this.newEnv("Env1");
-    this.newEnv("Env2");
-    this.newEnv("Env3");
-    this.closeEnv();
-    this.closeEnv();
-    this.closeEnv();
     this.newEnv("Turns");
   }
 
