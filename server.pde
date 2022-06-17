@@ -184,7 +184,7 @@ class Server {
           new String[] {"type"},
           new String[] {atk.target.type.name()}
           );
-        logger.Print("extinction", extinct.formJSON());
+        logger.PrintBack("extinction", extinct.formJSON());
       }
 
       JSONData dataKill = new JSONData(
