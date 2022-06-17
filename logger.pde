@@ -36,6 +36,14 @@ class Logger {
     }
   }
 
+  void PrintBack(String field, String data) {
+    if (this.envList.size() > 1) {
+      JSONObject json = parseJSONObject(data);
+      JSONObject destination = this.envList.get(this.envList.size() - 2);
+      destination.setJSONObject(field, json);
+    }
+  }
+
   void PrintArray(String field, JSONArray json) {
     if (this.currEnvName != null) {
       this.currEnvironment.setJSONArray(field, json);

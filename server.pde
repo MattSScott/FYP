@@ -169,7 +169,6 @@ class Server {
 
 
   void resolveAttack(AttackInfo atk) {
-    atk.target.receiveAttackNotif(atk);
     float dmg = atk.damageDealt();
     float contrib = atk.resourcesContributed;
     float newHP =  max(0, (atk.target.getHP() - dmg));
@@ -178,22 +177,24 @@ class Server {
     //println("agent " + atk.target.getID() + "'s health has dropped from " + atk.target.getHP() + " to " + newHP);
     atk.target.setHP(newHP);
     if (newHP == 0) {
-      //logger.newEnv("kill");
-      ////println("==== KILL ====");
-      ////println("agent " + atk.attacker.getID() + " killed agent " + atk.target.getID() + "! Stealing utility = " + atk.target.utility);
-      ////println("==== KILL ====");
-      //JSONData data = new JSONData(
-      //  new String[] { "type", "deceased", "utility stolen"},
-      //  new String[] { atk.attacker.type.name(), str(atk.target.getID()), str(atk.target.utility) }
-      //  );
-      //logger.Print(atk.attacker.getID(), data.formJSON());
-      //logger.closeEnv();
+
+      if (this.causedExtinction(atk.target)) {
+        println(atk.target.type.name() + " is extinct");
+        JSONData extinct = new JSONData(
+          new String[] {"type"},
+          new String[] {atk.target.type.name()}
+          );
+        logger.Print("extinction", extinct.formJSON());
+      }
+
       JSONData dataKill = new JSONData(
         new String[] { "attacker", "target", "utility_gained" },
         new String[] { "Agent " + str(atk.attacker.getID()), "Agent " + str(atk.target.getID()), str(atk.target.utility) }
         );
-      logger.Print("KILL", dataKill.formJSON());
+      logger.Print("kill", dataKill.formJSON());
       atk.attacker.utility += atk.target.utility;
+    } else {
+      atk.target.receiveAttackNotif(atk);
     }
     JSONData data = new JSONData(
       new String[] { "type", "action", "target", "damage"},
@@ -203,6 +204,15 @@ class Server {
     logger.Print("action", data.formJSON());
   }
 
+  boolean causedExtinction(Agent killed) {
+    int typeCount = 0;
+    for (Agent a : this.aliveAgents) {
+      if (a != killed && a.type == killed.type) {
+        typeCount++;
+      }
+    }
+    return typeCount == 0;
+  }
 
   void processAction(ActionMessage msg) {
     if (msg.type != ActionType.launchAttack) {
@@ -328,7 +338,7 @@ class Server {
           new String[] { "type", "proposer", "accepter"},
           new String[] { t.treatyInfo.treatyName, "Agent " + str(t.treatyFrom.getID()), "Agent " + str(t.treatyTo.getID())}
           );
-        logger.Print("TREATY BREAK", data.formJSON());
+        logger.Print("treaty_break", data.formJSON());
       }
     }
   }
@@ -453,7 +463,7 @@ class Server {
     }
 
     JSONData newAg = new JSONData( new String[]{"type"}, new String[]{added.type.name()});
-    logger.Print("NEW AGENT", newAg.formJSON());
+    logger.Print("new_agent", newAg.formJSON());
   }
 
 
@@ -500,8 +510,11 @@ class Server {
 
     this.showAgents(playPause.isPlaying());
 
-    text("Classification Error: " + this.classificationError() * 100 + '%', width-100, 50);
-    text("Average P(BuyIn): " + this.avgBuyIn() * 100 + '%', width-100, 70);
+    float classErr = this.classificationError();
+    float avgBuy = this.avgBuyIn();
+
+    text("Classification Error: " + classErr * 100 + '%', width-100, 50);
+    text("Average P(BuyIn): " + avgBuy * 100 + '%', width-100, 70);
 
     if (playPause.isPlaying()) {
 
@@ -516,6 +529,9 @@ class Server {
       if (frameCount % config.addAgentCooldown == 0) {
         this.processNewAgent();
       }
+
+      JSONData turnData = new JSONData( new String[]{"class_error", "avg_buy_in"}, new String[]{str(classErr), str(avgBuy)});
+      logger.Print("turn_stats", turnData.formJSON());
 
       if (this.currTurn == config.maxTurns) {
         println();
