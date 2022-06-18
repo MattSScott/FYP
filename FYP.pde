@@ -47,7 +47,7 @@ void setup() {
 }
 
 void draw() {
-  background(255);
+  background(240);
 
   toggleActionButton.show();
 

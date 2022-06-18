@@ -530,7 +530,7 @@ class Server {
         this.processNewAgent();
       }
 
-      JSONData turnData = new JSONData( new String[]{"class_error", "avg_buy_in"}, new String[]{str(classErr), str(avgBuy)});
+      JSONData turnData = new JSONData( new String[]{"class_error", "avg_buy_in", "agents_alive"}, new String[]{str(classErr), str(avgBuy), str(this.aliveAgents.size())});
       logger.Print("turn_stats", turnData.formJSON());
 
       if (this.currTurn == config.maxTurns) {

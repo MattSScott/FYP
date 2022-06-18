@@ -18,8 +18,10 @@ class Logger {
   }
 
   void initJSON() {
-    this.newEnv("Config");
-    this.closeEnv();
+    JSONData turnData = new JSONData(
+      new String[]{"max_turns", "starting_buy_in", "treaties_allowed", "reinjection_rate"},
+      new String[]{str(config.maxTurns), str(config.startingBuyInProb), str(config.allowTreaties), str(config.addAgentCooldown)});
+    this.Print("config", turnData.formJSON());
     this.newEnv("Turns");
   }
 
